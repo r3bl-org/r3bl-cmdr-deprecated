@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /*
- * Copyright 2021 Nazmul Idris All rights reserved.
+ * Copyright (c) 2021 R3BL LLC. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-import React from "react"
+import { createElement } from "react"
 import { render } from "ink"
-import App from "./ui"
-import { _let } from "r3bl-ts-utils"
+import { appFn } from "./ui"
+import { _also, _let, TimerRegistry } from "r3bl-ts-utils"
 import { Command } from "commander"
 
 const name: string = _let(new Command(), (command) => {
@@ -29,4 +30,18 @@ const name: string = _let(new Command(), (command) => {
   return options["name"] as string
 })
 
-render(<App name={name} />)
+/**
+ * 1. render() returns an instance of Ink that can be used to unmount(), waitUntilExit(), etc.
+ * 2. `React.createElement(app, { name })` is almost the same as `<App name={name} />`, except that
+ *    the JSX *requires* the functional or class component to start w/ an uppercase character.
+ */
+_also(render(createElement(appFn, { name: !name ? "Stranger" : name })), (ink) => {
+  ink
+    .waitUntilExit()
+    .then(() => {
+      TimerRegistry.killAll()
+    })
+    .catch(() => {
+      console.error("Problem with exiting ink")
+    })
+})

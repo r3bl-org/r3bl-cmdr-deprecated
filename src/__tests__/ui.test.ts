@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Nazmul Idris All rights reserved.
+ * Copyright (c) 2021 R3BL LLC. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,31 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 import React from "react"
-import chalk from "chalk"
 import { render } from "ink-testing-library"
-import App from "../ui"
+import { appFn } from "../ui"
+import { TimerRegistry } from "r3bl-ts-utils"
 
-describe("my test suite", () => {
-  test("a spec with an expectation", () => {
-    expect(true).toBe(true)
-  })
+/**
+ * ink-testing-library: https://github.com/vadimdemedes/ink-testing-library/blob/master/readme.md
+ */
 
-  test("another spec with a different expectation", () => {
-    expect(false).toBe(false)
-  })
+afterEach(() => {
+  TimerRegistry.killAll()
 })
 
-describe("ink test suite", () => {
-  test("greet unknown user", () => {
-    const { lastFrame } = render(React.createElement(App, null))
-    expect(lastFrame()).toEqual("Hello, \u001b[32mStranger\u001b[39m")
-  })
-
-  test("greet user with a name", () => {
-    const { lastFrame } = render(React.createElement(App, { name: "Jane" }))
-    expect(lastFrame()).toEqual(chalk`Hello, {green Jane}`)
-  })
+test("renders w/ name props", () => {
+  const { lastFrame } = render(React.createElement(appFn, { name: "Grogu" }))
+  expect(lastFrame()).toContain("Grogu")
 })

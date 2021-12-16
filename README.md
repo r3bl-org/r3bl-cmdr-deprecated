@@ -3,26 +3,33 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [What is this?](#what-is-this)
-- [npm scripts](#npm-scripts)
-  - [Development using tsm (skip compilation)](#development-using-tsm-skip-compilation)
-  - [Traditional approach (compile TS and run JS)](#traditional-approach-compile-ts-and-run-js)
-  - [start script](#start-script)
-- [npm link](#npm-link)
-  - [How do I change the name of the CLI app?](#how-do-i-change-the-name-of-the-cli-app)
-- [IDEA Run Configurations](#idea-run-configurations)
-- [How to update the template](#how-to-update-the-template)
-- [ESM, r3bl-ts-utils, and React](#esm-r3bl-ts-utils-and-react)
-- [CommonJS, ESM, r3bl-ts-utils, and React](#commonjs-esm-r3bl-ts-utils-and-react)
+- [Information about underlying template repo](#information-about-underlying-template-repo)
+  - [npm scripts](#npm-scripts)
+    - [Development using tsm (skip compilation)](#development-using-tsm-skip-compilation)
+    - [Traditional approach (compile TS and run JS)](#traditional-approach-compile-ts-and-run-js)
+    - [start script](#start-script)
+  - [npm link](#npm-link)
+    - [How do I change the name of the CLI app?](#how-do-i-change-the-name-of-the-cli-app)
+  - [IDEA Run Configurations](#idea-run-configurations)
+  - [How to update the template](#how-to-update-the-template)
+  - [CommonJS, ESM, r3bl-ts-utils, and React](#commonjs-esm-r3bl-ts-utils-and-react)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## What is this?
+## Information about underlying template repo
 
-This is a [Github template repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template) project that makes it easy to work w/ Ink v3 to build [CLI (command line interface) apps](https://developerlife.com/category/CLI/) using Node.js w/
-TypeScript and Jest for testing. Make sure to run `npm install` after cloning this template repo on your machine. Both IntelliJ IDEA & VSCode project files are provided, so you can easily open this repo up in both IDEs.
+This is a project based on the [Github template repo][2021-12-16.1] project that makes it easy to
+work w/ Ink v3 to build [CLI (command line interface) apps][2021-12-16.2] using Node.js w/
+TypeScript and Jest for testing. Make sure to run `npm install` after cloning this template repo on
+your machine. Both IntelliJ IDEA & VSCode project files are provided, so you can easily open this
+repo up in both IDEs.
 
-## npm scripts
+<!-- prettier-ignore-start -->
+[2021-12-16.1]: https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template
+[2021-12-16.2]: https://developerlife.com/category/CLI/
+<!-- prettier-ignore-end -->
+
+### npm scripts
 
 There are two types of scripts provided - one using [`tsm`](https://www.npmjs.com/package/tsm) to
 quickly run TypeScript code w/out having to compile it first, and the other using the traditional
@@ -30,7 +37,7 @@ build, test, and run approach.
 
 To run any of the following scripts you can execute `npm run <SCRIPT_NAME>`.
 
-### Development using tsm (skip compilation)
+#### Development using tsm (skip compilation)
 
 <!-- prettier-ignore-start -->
 | Task              | Script            | Notes                                                        |
@@ -42,7 +49,7 @@ To run any of the following scripts you can execute `npm run <SCRIPT_NAME>`.
 | Run linter        | `lint`            | Run ESLint.                                                  |
 <!-- prettier-ignore-end -->
 
-### Traditional approach (compile TS and run JS)
+#### Traditional approach (compile TS and run JS)
 
 <!-- prettier-ignore-start -->
 | Task                | Script           | Notes                                                  |
@@ -69,7 +76,7 @@ Here are some notes on how all the watching tasks work.
 [w-3]: https://github.com/mysticatea/npm-run-all
 <!-- prettier-ignore-end -->
 
-### start script
+#### start script
 
 1. Make sure to mark `dist/cli.js` file as executable so that this self executing module can run.
 2. To pass command line arguments you can use `npm run start -- <STUFF>`
@@ -80,7 +87,7 @@ Here are some notes on how all the watching tasks work.
 - `-n Grogu`
 - `--name Grogu`
 
-## npm link
+### npm link
 
 If you want to create a symlink for the executable node module in this template project, you can
 simply run the following command in the folder containing `package.json`. It will create a symlink
@@ -90,7 +97,7 @@ simply run the following command in the folder containing `package.json`. It wil
 $ npm link
 ```
 
-### How do I change the name of the CLI app?
+#### How do I change the name of the CLI app?
 
 The `name` property in `package.json` is `ink-cli-app` by default. If you want to rename it to
 something else, just change this property. If you want to update your symlink, then you have to run
@@ -101,7 +108,7 @@ $ npm uninstall -g ink-cli-app
 $ npm link
 ```
 
-## IDEA Run Configurations
+### IDEA Run Configurations
 
 You can also use IDEA Run Configurations that are included.
 
@@ -109,7 +116,7 @@ You can also use IDEA Run Configurations that are included.
    file.
 2. `cli.js` - This uses Node.js to run run the `dist/cli.js` file after building it.
 
-## How to update the template
+### How to update the template
 
 You can get more info on this topic [here](https://stackoverflow.com/a/56577320/2085356). Here are
 the steps to create a remote called `template` that we will pull the changes from and then merge
@@ -120,7 +127,7 @@ git remote add template https://github.com/nazmulidris/ts-ink-template
 git pull template main
 ```
 
-## CommonJS, ESM, r3bl-ts-utils, and React
+### CommonJS, ESM, r3bl-ts-utils, and React
 
 This node module is compiled to CommonJS (as specified in [`tsconfig.json`](tsconfig.json)) and not
 ESM. Here's more information on CommonJS, ESM, and hybrid modules.

@@ -16,42 +16,42 @@
  */
 
 //#region Imports.
-import React, { FC, useMemo } from "react"
+
 import { Box, Text, useApp, useFocusManager } from "ink"
 import {
-  _also,
-  createNewKeyPressesToActionMap,
-  KeyBindingsForActions,
-  TTYSize,
-  useClockWithLocalTimeFormat,
-  useKeyboardWithMap,
-  usePreventProcessExitDuringTesting,
-  useTTYSize,
+  _also, createNewKeyPressesToActionMap, KeyBindingsForActions, TTYSize,
+  useClockWithLocalTimeFormat, useKeyboardWithMap, usePreventProcessExitDuringTesting, useTTYSize,
 } from "r3bl-ts-utils"
+import React, { FC, useMemo } from "react"
+
 //#endregion
 
 //#region App functional component.
+
 export const appFn: FC<{ name: string }> = ({ name }) => render.call(runHooks(name))
+
 //#endregion
 
 //#region Hooks.
+
 interface RenderContext {
   ttySize: TTYSize
   inRawMode: boolean
   formattedTime: string
   name: string
 }
+
 function runHooks(name: string) {
   usePreventProcessExitDuringTesting() // For testing using `npm run start-dev-watch`.
   const ttySize: TTYSize = useTTYSize()
-  const [formattedTime] = useClockWithLocalTimeFormat(10_000)
-
+  const [ formattedTime ] = useClockWithLocalTimeFormat(10_000)
+  
   const map: KeyBindingsForActions = useMemo(
     createActionMap.bind({ app: useApp(), focusManager: useFocusManager() }),
     []
   )
-  const [_, inRawMode] = useKeyboardWithMap(map)
-
+  const [ _, inRawMode ] = useKeyboardWithMap(map)
+  
   return {
     name,
     ttySize,
@@ -59,22 +59,30 @@ function runHooks(name: string) {
     inRawMode,
   }
 }
+
 //#endregion
 
 //#region handleKeyboard.
+
 type CreateActionMapContext = {
   app: ReturnType<typeof useApp>
 }
+
 function createActionMap(this: CreateActionMapContext): KeyBindingsForActions {
   console.log("createActionMap - cache miss!")
-  return _also(createNewKeyPressesToActionMap(), (map) => {
-    const { app } = this
-    map.set(["q", "ctrl+q", "escape"], app.exit)
-  })
+  return _also(
+    createNewKeyPressesToActionMap(),
+    (map) => {
+      const { app } = this
+      map.set([ "q", "ctrl+q", "escape" ], app.exit)
+    }
+  )
 }
+
 //#endregion
 
 //#region render().
+
 function render(this: RenderContext) {
   const { name, inRawMode, ttySize, formattedTime } = this
   return (
@@ -94,4 +102,5 @@ function render(this: RenderContext) {
     </Box>
   )
 }
+
 //#endregion

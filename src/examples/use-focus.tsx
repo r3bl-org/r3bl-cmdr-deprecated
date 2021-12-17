@@ -16,66 +16,77 @@
  */
 
 //#region Imports.
+
 import * as ink from "ink"
 import { Box, Newline, Text, useApp, useFocus, useFocusManager } from "ink"
 import {
-  _also,
-  createNewKeyPressesToActionMap,
-  KeyBindingsForActions,
-  makeReactElementFromArray,
-  useKeyboardWithMap,
-  UserInputKeyPress,
+  _also, createNewKeyPressesToActionMap, KeyBindingsForActions, makeReactElementFromArray,
+  useKeyboardWithMap, UserInputKeyPress,
 } from "r3bl-ts-utils"
 import React, { createElement, FC, useMemo } from "react"
+
 //#endregion
 
 //#region Main functional component.
+
 const useFocusExampleFn: FC = (): JSX.Element => render.call(runHooks())
+
 //#endregion
 
 //#region runHooks.
+
 interface RenderContext {
   keyPress: UserInputKeyPress | undefined
   inRawMode: boolean
 }
+
 function runHooks(): RenderContext {
   const map: KeyBindingsForActions = useMemo(
     createActionMap.bind({ app: useApp(), focusManager: useFocusManager() }),
     []
   )
-  const [keyPress, inRawMode] = useKeyboardWithMap(map)
+  const [ keyPress, inRawMode ] = useKeyboardWithMap(map)
   return { keyPress, inRawMode }
 }
+
 //#endregion
 
 //#region handleKeyboard.
+
 type CreateActionMapContext = {
   app: ReturnType<typeof useApp>
   focusManager: ReturnType<typeof useFocusManager>
 }
+
 function createActionMap(this: CreateActionMapContext): KeyBindingsForActions {
   console.log("createActionMap - cache miss!")
-  return _also(createNewKeyPressesToActionMap(), (map) => {
-    const { app, focusManager } = this
-    map.set(["q", "ctrl+q"], app.exit)
-    map.set(["!"], focusManager.focus.bind(undefined, "1"))
-    map.set(["@"], focusManager.focus.bind(undefined, "2"))
-    map.set(["#"], focusManager.focus.bind(undefined, "3"))
-  })
+  return _also(
+    createNewKeyPressesToActionMap(),
+    (map) => {
+      const { app, focusManager } = this
+      map.set([ "q", "ctrl+q" ], app.exit)
+      map.set([ "!" ], focusManager.focus.bind(undefined, "1"))
+      map.set([ "@" ], focusManager.focus.bind(undefined, "2"))
+      map.set([ "#" ], focusManager.focus.bind(undefined, "3"))
+    }
+  )
 }
+
 //#endregion
 
 //#region render().
+
 function render(this: RenderContext) {
   const { keyPress, inRawMode } = this
   return (
     <Box flexDirection="column">
-      {keyPress && <Row_Debug inRawMode={inRawMode} keyPress={keyPress.toString()} />}
-      <Row_Instructions />
-      <Row_FocusableItems />
+      {keyPress && <Row_Debug inRawMode={inRawMode} keyPress={keyPress.toString()}/>}
+      <Row_Instructions/>
+      <Row_FocusableItems/>
     </Box>
   )
 }
+
 //#endregion
 
 //#region UI.
@@ -94,11 +105,11 @@ const Row_Debug: FC<{ inRawMode: boolean; keyPress: string | undefined }> = func
 const Row_Instructions: FC = function (): JSX.Element {
   return makeReactElementFromArray(
     [
-      ["blue", "Press Tab to focus next element"],
-      ["blue", "Shift+Tab to focus previous element"],
-      ["blue", "Esc to reset focus."],
-      ["green", "Press Shift+<n> to directly focus on 1st through 3rd item."],
-      ["red", "To exit, press Ctrl+q, or q"],
+      [ "blue", "Press Tab to focus next element" ],
+      [ "blue", "Shift+Tab to focus previous element" ],
+      [ "blue", "Esc to reset focus." ],
+      [ "green", "Press Shift+<n> to directly focus on 1st through 3rd item." ],
+      [ "red", "To exit, press Ctrl+q, or q" ],
     ],
     (item: string[], id: number): JSX.Element => (
       <Text color={item[0]} key={id}>
@@ -111,9 +122,9 @@ const Row_Instructions: FC = function (): JSX.Element {
 const Row_FocusableItems: FC = function (): JSX.Element {
   return (
     <Box padding={1} flexDirection="row" justifyContent={"space-between"}>
-      <FocusableItem id="1" label="First" />
-      <FocusableItem id="2" label="Second" />
-      <FocusableItem id="3" label="Third" />
+      <FocusableItem id="1" label="First"/>
+      <FocusableItem id="2" label="Second"/>
+      <FocusableItem id="3" label="Third"/>
     </Box>
   )
 }
@@ -125,12 +136,12 @@ const FocusableItem: FC<{ label: string; id: string }> = function ({ label, id }
       {label}
       {isFocused ? (
         <>
-          <Newline />
+          <Newline/>
           <Text color="green">(*)</Text>
         </>
       ) : (
         <>
-          <Newline />
+          <Newline/>
           <Text color="gray">n/a</Text>
         </>
       )}

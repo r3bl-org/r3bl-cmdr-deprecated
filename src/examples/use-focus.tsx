@@ -18,8 +18,9 @@
 import { Box, Newline, render, Text, useApp, useFocus, useFocusManager } from "ink"
 import {
   _also,
-  _callIfTrue,
   _let,
+  Cache,
+  createCache,
   createNewKeyPressesToActionMap,
   KeyboardInputHandlerFn,
   makeReactElementFromArray,
@@ -37,18 +38,20 @@ const UseFocusExample: FC = function (): JSX.Element {
 
   return (
     <Box flexDirection="column">
-      {keyPress && (
-        <Row_Debug
-          inRawMode={inRawMode}
-          keyPressed={keyPress?.key}
-          inputPressed={keyPress?.input}
-        />
-      )}
+      {keyPress && <Row_Debug inRawMode={inRawMode} keyPress={keyPress.toString()} />}
       <Row_Instructions />
       <Row_FocusableItems />
     </Box>
   )
 }
+//#endregion
+
+//#region Local cache.
+const cache: Cache<string, Map<string[], () => void>> = createCache(
+  "cache",
+  10,
+  "least-frequently-used"
+)
 //#endregion
 
 //#region Keypress handler.
@@ -60,29 +63,29 @@ const onKeyPress: KeyboardInputHandlerFn = function (
   const { exit } = app
   const { focus } = focusManager
 
-  const keyPressesToActionMap = _also(createNewKeyPressesToActionMap(), (map) => {
-    map.set(["q", "ctrl+q"], exit)
-    map.set(["!"], focus.bind(this, "1"))
-    map.set(["@"], focus.bind(this, "2"))
-    map.set(["#"], focus.bind(this, "3"))
+  _let(cache.getAndComputeIfAbsent("keyPressesToActionMap", createActionMap), (map) => {
+    processKeyPress(keyPress, map)
   })
 
-  processKeyPress(keyPress, keyPressesToActionMap)
+  function createActionMap(): Map<string[], () => void> {
+    console.log("createActionMap - cache miss!")
+    return _also(createNewKeyPressesToActionMap(), (map) => {
+      map.set(["q", "ctrl+q"], exit)
+      map.set(["!"], focus.bind(undefined, "1"))
+      map.set(["@"], focus.bind(undefined, "2"))
+      map.set(["#"], focus.bind(undefined, "3"))
+    })
+  }
 }
 //#endregion
 
 //#region UI.
 
-function Row_Debug(props: {
-  inRawMode: boolean
-  keyPressed: string | undefined
-  inputPressed: string | undefined
-}) {
-  const { inputPressed, keyPressed, inRawMode } = props
+function Row_Debug(props: { inRawMode: boolean; keyPress: string | undefined }) {
+  const { keyPress, inRawMode } = props
   return inRawMode ? (
     <>
-      <Text color={"magenta"}>input: {inputPressed}</Text>
-      <Text color={"gray"}>key: {keyPressed}</Text>
+      <Text color={"magenta"}>keyPress: {keyPress}</Text>
     </>
   ) : (
     <Text>keyb disabled</Text>

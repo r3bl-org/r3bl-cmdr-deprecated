@@ -15,27 +15,59 @@
  *
  */
 
-import { Box, Newline, render, Text, useApp, useFocus, useFocusManager } from "ink"
+//#region Imports.
+import * as ink from "ink"
+import { Box, Newline, Text, useApp, useFocus, useFocusManager } from "ink"
 import {
   _also,
-  _let,
-  Cache,
-  createCache,
   createNewKeyPressesToActionMap,
-  KeyboardInputHandlerFn,
+  KeyBindingsForActions,
   makeReactElementFromArray,
-  processKeyPress,
-  useKeyboard,
+  useKeyboardWithMap,
   UserInputKeyPress,
 } from "r3bl-ts-utils"
-import React, { FC } from "react"
+import React, { createElement, FC, useMemo } from "react"
+//#endregion
 
 //#region Main functional component.
-const UseFocusExample: FC = function (): JSX.Element {
-  const [keyPress, inRawMode] = useKeyboard(
-    onKeyPress.bind({ app: useApp(), focusManager: useFocusManager() })
-  )
+const useFocusExampleFn: FC = (): JSX.Element => render.call(useHooks())
+//#endregion
 
+//#region useHooks.
+interface RenderContext {
+  keyPress: UserInputKeyPress | undefined
+  inRawMode: boolean
+}
+function useHooks(): RenderContext {
+  const map: KeyBindingsForActions = useMemo(
+    createActionMap.bind({ app: useApp(), focusManager: useFocusManager() }),
+    []
+  )
+  const [keyPress, inRawMode] = useKeyboardWithMap(map)
+  return { keyPress, inRawMode }
+}
+//#endregion
+
+//#region handleKeyboard.
+type CreateActionMapContext = {
+  app: ReturnType<typeof useApp>
+  focusManager: ReturnType<typeof useFocusManager>
+}
+function createActionMap(this: CreateActionMapContext): KeyBindingsForActions {
+  console.log("createActionMap - cache miss!")
+  return _also(createNewKeyPressesToActionMap(), (map) => {
+    const { app, focusManager } = this
+    map.set(["q", "ctrl+q"], app.exit)
+    map.set(["!"], focusManager.focus.bind(undefined, "1"))
+    map.set(["@"], focusManager.focus.bind(undefined, "2"))
+    map.set(["#"], focusManager.focus.bind(undefined, "3"))
+  })
+}
+//#endregion
+
+//#region render().
+function render(this: RenderContext) {
+  const { keyPress, inRawMode } = this
   return (
     <Box flexDirection="column">
       {keyPress && <Row_Debug inRawMode={inRawMode} keyPress={keyPress.toString()} />}
@@ -46,49 +78,16 @@ const UseFocusExample: FC = function (): JSX.Element {
 }
 //#endregion
 
-//#region Local cache.
-const cache: Cache<string, Map<string[], () => void>> = createCache(
-  "cache",
-  10,
-  "least-frequently-used"
-)
-//#endregion
-
-//#region Keypress handler.
-const onKeyPress: KeyboardInputHandlerFn = function (
-  this: { app: ReturnType<typeof useApp>; focusManager: ReturnType<typeof useFocusManager> },
-  keyPress: UserInputKeyPress
-) {
-  const { app, focusManager } = this
-  const { exit } = app
-  const { focus } = focusManager
-
-  _let(cache.getAndComputeIfAbsent("keyPressesToActionMap", createActionMap), (map) => {
-    processKeyPress(keyPress, map)
-  })
-
-  function createActionMap(): Map<string[], () => void> {
-    console.log("createActionMap - cache miss!")
-    return _also(createNewKeyPressesToActionMap(), (map) => {
-      map.set(["q", "ctrl+q"], exit)
-      map.set(["!"], focus.bind(undefined, "1"))
-      map.set(["@"], focus.bind(undefined, "2"))
-      map.set(["#"], focus.bind(undefined, "3"))
-    })
-  }
-}
-//#endregion
-
 //#region UI.
 
-function Row_Debug(props: { inRawMode: boolean; keyPress: string | undefined }) {
-  const { keyPress, inRawMode } = props
+const Row_Debug: FC<{ inRawMode: boolean; keyPress: string | undefined }> = function ({
+  keyPress,
+  inRawMode,
+}): JSX.Element {
   return inRawMode ? (
-    <>
-      <Text color={"magenta"}>keyPress: {keyPress}</Text>
-    </>
+    <Text color="magenta">keyPress: {keyPress}</Text>
   ) : (
-    <Text>keyb disabled</Text>
+    <Text color="gray">keyb disabled</Text>
   )
 }
 
@@ -141,4 +140,4 @@ const FocusableItem: FC<{ label: string; id: string }> = function ({ label, id }
 
 //#endregion
 
-render(<UseFocusExample />)
+ink.render(createElement(useFocusExampleFn))

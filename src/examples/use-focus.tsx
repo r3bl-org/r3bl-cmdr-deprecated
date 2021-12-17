@@ -17,9 +17,13 @@
 
 import { Box, Newline, render, Text, useApp, useFocus, useFocusManager } from "ink"
 import {
+  _also,
   _callIfTrue,
+  _let,
+  createNewKeyPressesToActionMap,
   KeyboardInputHandlerFn,
   makeReactElementFromArray,
+  processKeyPress,
   useKeyboard,
   UserInputKeyPress,
 } from "r3bl-ts-utils"
@@ -50,18 +54,20 @@ const UseFocusExample: FC = function (): JSX.Element {
 //#region Keypress handler.
 const onKeyPress: KeyboardInputHandlerFn = function (
   this: { app: ReturnType<typeof useApp>; focusManager: ReturnType<typeof useFocusManager> },
-  userInputKeyPress: UserInputKeyPress
+  keyPress: UserInputKeyPress
 ) {
   const { app, focusManager } = this
   const { exit } = app
   const { focus } = focusManager
-  const { input, key } = userInputKeyPress
 
-  _callIfTrue(input === "q", exit)
-  _callIfTrue(key === "ctrl" && input === "q", exit)
-  _callIfTrue(input === "!", () => focus("1"))
-  _callIfTrue(input === "@", () => focus("2"))
-  _callIfTrue(input === "#", () => focus("3"))
+  const keyPressesToActionMap = _also(createNewKeyPressesToActionMap(), (map) => {
+    map.set(["q", "ctrl+q"], exit)
+    map.set(["!"], focus.bind(this, "1"))
+    map.set(["@"], focus.bind(this, "2"))
+    map.set(["#"], focus.bind(this, "3"))
+  })
+
+  processKeyPress(keyPress, keyPressesToActionMap)
 }
 //#endregion
 

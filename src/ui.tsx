@@ -15,30 +15,43 @@
  *
  */
 
-import React, { FC } from "react"
-import { Box, Text, useApp } from "ink"
+//#region Imports.
+import React, { FC, useMemo } from "react"
+import { Box, Text, useApp, useFocusManager } from "ink"
 import {
-  _callIfTrue,
-  _let,
+  _also,
+  createNewKeyPressesToActionMap,
+  KeyBindingsForActions,
   TTYSize,
   useClockWithLocalTimeFormat,
-  useKeyboard,
+  useKeyboardWithMap,
   usePreventProcessExitDuringTesting,
-  UserInputKeyPress,
   useTTYSize,
 } from "r3bl-ts-utils"
+//#endregion
 
 //#region App functional component.
-export const appFn: FC<{ name: string }> = ({ name }) => render(runHooks(name))
+export const appFn: FC<{ name: string }> = ({ name }) => render.call(runHooks(name))
+//#endregion
 
-function runHooks(name: string): LocalVars {
+//#region Hooks.
+interface RenderContext {
+  ttySize: TTYSize
+  inRawMode: boolean
+  formattedTime: string
+  name: string
+}
+function runHooks(name: string) {
   usePreventProcessExitDuringTesting() // For testing using `npm run start-dev-watch`.
   const ttySize: TTYSize = useTTYSize()
   const [formattedTime] = useClockWithLocalTimeFormat(10_000)
-  const inRawMode = _let(useApp(), (it) => {
-    const [_, inRawMode] = useKeyboard(onKeyboardFn.bind({ useApp: it }))
-    return inRawMode
-  })
+
+  const map: KeyBindingsForActions = useMemo(
+    createActionMap.bind({ app: useApp(), focusManager: useFocusManager() }),
+    []
+  )
+  const [_, inRawMode] = useKeyboardWithMap(map)
+
   return {
     name,
     ttySize,
@@ -46,39 +59,24 @@ function runHooks(name: string): LocalVars {
     inRawMode,
   }
 }
-interface LocalVars {
-  ttySize: TTYSize
-  inRawMode: boolean
-  formattedTime: string
-  name: string
-}
 //#endregion
 
-//#region Handle keyboard input.
-/**
- * 🪄 This function implements `KeyboardInputHandlerFn` interface.
- *
- * `this` binds it to an object of type OnKeyboardContext. Since this function is a callback that's
- * executed by Ink itself, it can't make any calls to hooks (like `useApp()` which is why re-binding
- * `this` is needed).
- */
-function onKeyboardFn(
-  this: {
-    useApp: ReturnType<typeof useApp>
-  },
-  keyPress: UserInputKeyPress
-) {
-  const { useApp } = this
-
-  _callIfTrue(keyPress.toString() === "ctrl+q", useApp.exit)
-  _callIfTrue(keyPress.toString() === "q", useApp.exit)
-  _callIfTrue(keyPress.toString() === "escape", useApp.exit)
+//#region handleKeyboard.
+type CreateActionMapContext = {
+  app: ReturnType<typeof useApp>
+}
+function createActionMap(this: CreateActionMapContext): KeyBindingsForActions {
+  console.log("createActionMap - cache miss!")
+  return _also(createNewKeyPressesToActionMap(), (map) => {
+    const { app } = this
+    map.set(["q", "ctrl+q", "escape"], app.exit)
+  })
 }
 //#endregion
 
 //#region render().
-function render(locals: LocalVars) {
-  const { name, inRawMode, ttySize, formattedTime } = locals
+function render(this: RenderContext) {
+  const { name, inRawMode, ttySize, formattedTime } = this
   return (
     <Box flexDirection={"column"}>
       <Text>

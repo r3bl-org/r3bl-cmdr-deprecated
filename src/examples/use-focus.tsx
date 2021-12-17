@@ -30,15 +30,15 @@ import React, { createElement, FC, useMemo } from "react"
 //#endregion
 
 //#region Main functional component.
-const useFocusExampleFn: FC = (): JSX.Element => render.call(useHooks())
+const useFocusExampleFn: FC = (): JSX.Element => render.call(runHooks())
 //#endregion
 
-//#region useHooks.
+//#region runHooks.
 interface RenderContext {
   keyPress: UserInputKeyPress | undefined
   inRawMode: boolean
 }
-function useHooks(): RenderContext {
+function runHooks(): RenderContext {
   const map: KeyBindingsForActions = useMemo(
     createActionMap.bind({ app: useApp(), focusManager: useFocusManager() }),
     []

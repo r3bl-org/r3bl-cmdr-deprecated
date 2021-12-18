@@ -15,20 +15,17 @@
  *
  */
 
-//#region Imports.
-
-import { Box, Text, useApp, useFocusManager } from "ink"
+import { Box, Text, useApp } from "ink"
 import {
   _also, createNewKeyPressesToActionMap, KeyBindingsForActions, TTYSize,
-  useClockWithLocalTimeFormat, useKeyboardWithMap, usePreventProcessExitDuringTesting, useTTYSize,
+  useClockWithLocalTimeFormat, useKeyboardWithMap, usePreventProcessExitDuringTesting,
+  UserInputKeyPress, useTTYSize,
 } from "r3bl-ts-utils"
 import React, { FC, useMemo } from "react"
 
-//#endregion
-
 //#region App functional component.
 
-export const appFn: FC<{ name: string }> = ({ name }) => render.call(runHooks(name))
+export const appFn: FC<{ name: string }> = ({ name }) => render(runHooks(name))
 
 //#endregion
 
@@ -39,24 +36,27 @@ interface RenderContext {
   inRawMode: boolean
   formattedTime: string
   name: string
+  keyPress: UserInputKeyPress | undefined
 }
 
-function runHooks(name: string) {
+const runHooks = (name: string) => {
   usePreventProcessExitDuringTesting() // For testing using `npm run start-dev-watch`.
   const ttySize: TTYSize = useTTYSize()
   const [ formattedTime ] = useClockWithLocalTimeFormat(10_000)
   
+  const app = useApp()
   const map: KeyBindingsForActions = useMemo(
-    createActionMap.bind({ app: useApp(), focusManager: useFocusManager() }),
+    () => createKeyBindingsForActionsMap({ app }),
     []
   )
-  const [ _, inRawMode ] = useKeyboardWithMap(map)
+  const [ keyPress, inRawMode ] = useKeyboardWithMap(map)
   
   return {
     name,
     ttySize,
     formattedTime,
     inRawMode,
+    keyPress
   }
 }
 
@@ -68,12 +68,12 @@ type CreateActionMapContext = {
   app: ReturnType<typeof useApp>
 }
 
-function createActionMap(this: CreateActionMapContext): KeyBindingsForActions {
+const createKeyBindingsForActionsMap = (ctx: CreateActionMapContext): KeyBindingsForActions => {
   console.log("createActionMap - cache miss!")
   return _also(
     createNewKeyPressesToActionMap(),
     (map) => {
-      const { app } = this
+      const { app } = ctx
       map.set([ "q", "ctrl+q", "escape" ], app.exit)
     }
   )
@@ -83,21 +83,30 @@ function createActionMap(this: CreateActionMapContext): KeyBindingsForActions {
 
 //#region render().
 
-function render(this: RenderContext) {
-  const { name, inRawMode, ttySize, formattedTime } = this
+const render = (args: RenderContext) => {
+  const { keyPress, name, inRawMode, ttySize, formattedTime } = args
   return (
     <Box flexDirection={"column"}>
       <Text>
         Hello <Text color="yellow">{name}</Text>
       </Text>
       <Text>
-        {inRawMode ? <Text color="green">inRawMode</Text> : <Text color="red">!inRawMode</Text>}
+        {inRawMode ?
+          <Text color="green">inRawMode</Text> :
+          <Text color="red">!inRawMode</Text>
+        }
       </Text>
       <Text>
         ttySize <Text color="blue">{ttySize.toString()}</Text>
       </Text>
       <Text>
         time <Text color="magenta">{formattedTime}</Text>
+      </Text>
+      <Text>
+        {keyPress ?
+          <Text color="cyan">{keyPress.toString()}</Text> :
+          <Text color="red">!keyPress</Text>
+        }
       </Text>
     </Box>
   )

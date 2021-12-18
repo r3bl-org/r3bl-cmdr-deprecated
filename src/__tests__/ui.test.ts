@@ -20,9 +20,9 @@ import { TimerRegistry } from "r3bl-ts-utils"
 import React from "react"
 import { appFn } from "../ui"
 
-//ink-testing-library: https://github.com/vadimdemedes/ink-testing-library/blob/master/readme.md
+// ink-testing-library: https://github.com/vadimdemedes/ink-testing-library/blob/master/readme.md
 
-afterEach(TimerRegistry.killAll) // // eslint-disable-line
+afterEach(TimerRegistry.killAll)
 
 test("renders w/ name props", () => {
   const { lastFrame } = render(React.createElement(appFn, { name: "Grogu" }))

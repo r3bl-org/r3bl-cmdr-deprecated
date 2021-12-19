@@ -42,7 +42,7 @@ interface RenderContext {
 const runHooks = (name: string) => {
   usePreventProcessExitDuringTesting() // For testing using `npm run start-dev-watch`.
   const ttySize: TTYSize = useTTYSize()
-  const [ formattedTime ] = useClockWithLocalTimeFormat(10_000)
+  const { localeTimeString: formattedTime } = useClockWithLocalTimeFormat(3_000)
   
   const app = useApp()
   const map: KeyBindingsForActions = useMemo(

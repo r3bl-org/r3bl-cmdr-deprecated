@@ -19,7 +19,7 @@
 
 import { Command } from "commander"
 import { render } from "ink"
-import { _also, _let, TimerRegistry } from "r3bl-ts-utils"
+import { _alsoAsync, _let, TimerRegistry } from "r3bl-ts-utils"
 import { createElement } from "react"
 import { appFn } from "./ui"
 
@@ -53,26 +53,30 @@ const createInkApp = (args: CommandLineArgs): ReturnType<typeof render> => {
   )
 }
 
-const attachExitHandlerToIt = (it: ReturnType<typeof render>) => {
-  it.waitUntilExit()
-    .then(() => {
-      TimerRegistry.killAll()
-      console.log("Exiting ink")
-    })
-    .catch(() => {
-      console.error("Problem with exiting ink")
-    })
-}
-
 //#endregion
 
 //#region main().
 
-main()
-
-function main() {
-  const args = processCommandLineArgs()
-  _also(createInkApp(args), attachExitHandlerToIt)
+const attachExitHandlerToItAsync = async (it: ReturnType<typeof createInkApp>): Promise<void> => {
+  try {
+    await it.waitUntilExit()
+    TimerRegistry.killAll()
+    console.log("Exiting ink")
+  } catch (err) {
+    console.error("Problem with exiting ink")
+  }
 }
+
+const main = () => {
+  const args = processCommandLineArgs()
+  
+  _alsoAsync(
+    createInkApp(args),
+    attachExitHandlerToItAsync
+  )
+  
+}
+
+main()
 
 //#endregion

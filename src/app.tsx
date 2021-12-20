@@ -23,7 +23,7 @@ import {
 } from "r3bl-ts-utils"
 import React, { FC, useMemo } from "react"
 
-//#region App functional component.
+//#region App function component.
 
 export const appFn: FC<{ name: string }> = ({ name }) => render(runHooks(name))
 
@@ -45,10 +45,7 @@ const runHooks = (name: string) => {
   const { localeTimeString: formattedTime } = useClockWithLocalTimeFormat(3_000)
   
   const app = useApp()
-  const map: KeyBindingsForActions = useMemo(
-    () => createKeyBindingsForActionsMap({ app }),
-    []
-  )
+  const map: KeyBindingsForActions = useMemo(() => createShortcutsMap(app), [])
   const [ keyPress, inRawMode ] = useKeyboardWithMap(map)
   
   return {
@@ -64,20 +61,11 @@ const runHooks = (name: string) => {
 
 //#region handleKeyboard.
 
-type CreateActionMapContext = {
-  app: ReturnType<typeof useApp>
-}
-
-const createKeyBindingsForActionsMap = (ctx: CreateActionMapContext): KeyBindingsForActions => {
-  console.log("createActionMap - cache miss!")
-  return _also(
-    createNewKeyPressesToActionMap(),
-    (map) => {
-      const { app } = ctx
-      map.set([ "q", "ctrl+q", "escape" ], app.exit)
-    }
-  )
-}
+const createShortcutsMap = (app: ReturnType<typeof useApp>): KeyBindingsForActions => _also(
+  createNewKeyPressesToActionMap(),
+  map => map
+    .set([ "q", "ctrl+q", "escape" ], app.exit)
+)
 
 //#endregion
 

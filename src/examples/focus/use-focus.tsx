@@ -23,7 +23,7 @@ import {
 } from "r3bl-ts-utils"
 import React, { createElement, FC, useMemo } from "react"
 
-//#region Main functional component.
+//#region Main function component.
 
 const useFocusExampleFn: FC = (): JSX.Element => render(runHooks())
 
@@ -34,10 +34,7 @@ const useFocusExampleFn: FC = (): JSX.Element => render(runHooks())
 const runHooks = (): RenderContext => {
   const app = useApp()
   const focusManager = useFocusManager()
-  const map: KeyBindingsForActions = useMemo(
-    () => createActionMap({ app, focusManager }),
-    []
-  )
+  const map: KeyBindingsForActions = useMemo(() => createShortcutsMap({ app, focusManager }), [])
   const [ keyPress, inRawMode ] = useKeyboardWithMap(map)
   return { keyPress, inRawMode }
 }
@@ -51,17 +48,16 @@ type CreateActionMapContext = {
   focusManager: ReturnType<typeof useFocusManager>
 }
 
-const createActionMap = (ctx: CreateActionMapContext): KeyBindingsForActions => {
-  console.log("createActionMap - cache miss!")
+const createShortcutsMap = (ctx: CreateActionMapContext): KeyBindingsForActions => {
+  console.log("createShortcutsMap - cache miss!")
+  const { app, focusManager } = ctx
   return _also(
     createNewKeyPressesToActionMap(),
-    (map) => {
-      const { app, focusManager } = ctx
-      map.set([ "q", "ctrl+q" ], app.exit)
-      map.set([ "!" ], focusManager.focus.bind(undefined, "1"))
-      map.set([ "@" ], focusManager.focus.bind(undefined, "2"))
-      map.set([ "#" ], focusManager.focus.bind(undefined, "3"))
-    }
+    map => map
+      .set([ "q", "ctrl+q" ], app.exit)
+      .set([ "!" ], focusManager.focus.bind(undefined, "1"))
+      .set([ "@" ], focusManager.focus.bind(undefined, "2"))
+      .set([ "#" ], focusManager.focus.bind(undefined, "3"))
   )
 }
 
@@ -74,7 +70,7 @@ interface RenderContext {
   inRawMode: boolean
 }
 
-const render = function (ctx: RenderContext) {
+const render = (ctx: RenderContext) => {
   const { keyPress, inRawMode } = ctx
   return (
     <Box flexDirection="column">

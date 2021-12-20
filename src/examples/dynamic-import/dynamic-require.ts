@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /**
  * This works w/ `node -r tsm`, and if you build it and run the JS files.
  * https://stackoverflow.com/questions/55279762/javascript-dynamically-loading-a-class-and-creating-new-instance-with-specific

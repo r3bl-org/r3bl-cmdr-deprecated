@@ -21,7 +21,7 @@ import { Command } from "commander"
 import { render } from "ink"
 import { _alsoAsync, _let, TimerRegistry } from "r3bl-ts-utils"
 import { createElement } from "react"
-import { appFn } from "./ui"
+import { appFn } from "./app"
 
 //#region Parse command line args.
 

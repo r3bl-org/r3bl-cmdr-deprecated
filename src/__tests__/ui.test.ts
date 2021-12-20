@@ -18,7 +18,7 @@
 import { render } from "ink-testing-library"
 import { TimerRegistry } from "r3bl-ts-utils"
 import React from "react"
-import { appFn } from "../ui"
+import { appFn } from "../app"
 
 // ink-testing-library: https://github.com/vadimdemedes/ink-testing-library/blob/master/readme.md
 

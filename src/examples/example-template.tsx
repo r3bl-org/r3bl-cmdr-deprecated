@@ -18,7 +18,7 @@
 import * as ink from "ink"
 import { Box, Text, useApp } from "ink"
 import {
-  _also, createNewKeyPressesToActionMap, KeyBindingsForActions, useKeyboardWithMap,
+  _also, createNewKeyPressesToActionMap, KeyBindingsForActions, TextColor, useKeyboardWithMap,
   UserInputKeyPress,
 } from "r3bl-ts-utils"
 import React, { createElement, FC, useMemo } from "react"
@@ -63,7 +63,7 @@ const render = (ctx: RenderContext) => {
   return (
     <Box flexDirection="column">
       {keyPress && <Row_Debug inRawMode={inRawMode} keyPress={keyPress.toString()}/>}
-      <Text color="cyan">Your example goes here!</Text>
+      <Text>{TextColor.builder.rainbow.build()("Your example goes here!")}</Text>
     </Box>
   )
 }

@@ -18,8 +18,7 @@
 import * as ink from "ink"
 import { Box, Text, useApp } from "ink"
 import {
-  _also, createNewKeyPressesToActionMap, KeyBindingsForActions, TextColor, useKeyboardWithMap,
-  UserInputKeyPress,
+  _also, _let, createNewKeyPressesToActionMap, TextColor, useKeyboardWithMap, UserInputKeyPress,
 } from "r3bl-ts-utils"
 import React, { createElement, FC, useMemo } from "react"
 
@@ -38,25 +37,23 @@ interface RenderContext {
 
 const runHooks = (): RenderContext => {
   const app = useApp()
-  const map: KeyBindingsForActions = useMemo(() => createShortcutsMap(app), [])
-  const { keyPress, inRawMode } = useKeyboardWithMap(map)
-  return { keyPress, inRawMode }
+  
+  const createShortcuts = () => _also(
+    createNewKeyPressesToActionMap(),
+    map => map
+      .set([ "q", "ctrl+q" ], app.exit)
+      .set([ "x", "ctrl+x" ], app.exit)
+  )
+  
+  return _let(
+    useMemo(createShortcuts, []),
+    useKeyboardWithMap
+  )
 }
 
 //#endregion
 
-//#region handleKeyboard.
-
-const createShortcutsMap = (app: ReturnType<typeof useApp>): KeyBindingsForActions => _also(
-  createNewKeyPressesToActionMap(),
-  map => map
-    .set([ "q", "ctrl+q" ], app.exit)
-    .set([ "x", "ctrl+x" ], app.exit)
-)
-
-//#endregion
-
-//#region render().
+//#region UI.
 
 const render = (ctx: RenderContext) => {
   const { keyPress, inRawMode } = ctx
@@ -67,10 +64,6 @@ const render = (ctx: RenderContext) => {
     </Box>
   )
 }
-
-//#endregion
-
-//#region UI.
 
 const Row_Debug: FC<{ inRawMode: boolean; keyPress: string | undefined }> = ({
   keyPress,

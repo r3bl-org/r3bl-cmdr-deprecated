@@ -46,7 +46,7 @@ const runHooks = (name: string) => {
   
   const app = useApp()
   const map: KeyBindingsForActions = useMemo(() => createShortcutsMap(app), [])
-  const [ keyPress, inRawMode ] = useKeyboardWithMap(map)
+  const { keyPress, inRawMode } = useKeyboardWithMap(map)
   
   return {
     name,

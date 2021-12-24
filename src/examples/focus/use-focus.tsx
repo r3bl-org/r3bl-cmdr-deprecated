@@ -25,7 +25,7 @@ import React, { createElement, FC, useMemo } from "react"
 
 //#region Main function component.
 
-const useFocusExampleFn: FC = (): JSX.Element => render(runHooks())
+const useFocusExampleFn: FC = () => render(runHooks())
 
 //#endregion
 
@@ -35,7 +35,7 @@ const runHooks = (): RenderContext => {
   const app = useApp()
   const focusManager = useFocusManager()
   const map: KeyBindingsForActions = useMemo(() => createShortcutsMap({ app, focusManager }), [])
-  const [ keyPress, inRawMode ] = useKeyboardWithMap(map)
+  const { keyPress, inRawMode } = useKeyboardWithMap(map)
   return { keyPress, inRawMode }
 }
 

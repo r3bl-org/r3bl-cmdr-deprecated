@@ -21,17 +21,17 @@ import {
   _also, createNewKeyPressesToActionMap, KeyBindingsForActions, makeReactElementFromArray,
   useKeyboardWithMap, UserInputKeyPress,
 } from "r3bl-ts-utils"
-import React, { createElement, FC, useMemo } from "react"
+import React, { createElement, FC, ReactElement, useMemo } from "react"
 
 //#region Main function component.
 
-const useFocusExampleFn: FC = () => render(runHooks())
+const UseFocusExample: FC = () => render(runHooks())
 
 //#endregion
 
 //#region runHooks.
 
-const runHooks = (): RenderContext => {
+const runHooks = (): Context => {
   const app = useApp()
   const focusManager = useFocusManager()
   const map: KeyBindingsForActions = useMemo(() => createShortcutsMap({ app, focusManager }), [])
@@ -65,12 +65,12 @@ const createShortcutsMap = (ctx: CreateActionMapContext): KeyBindingsForActions 
 
 //#region render().
 
-interface RenderContext {
+interface Context {
   keyPress: UserInputKeyPress | undefined
   inRawMode: boolean
 }
 
-const render = (ctx: RenderContext) => {
+const render = (ctx: Context): ReactElement => {
   const { keyPress, inRawMode } = ctx
   return (
     <Box flexDirection="column">
@@ -139,4 +139,4 @@ const FocusableItem: FC<{ label: string; id: string }> = ({ label, id }): JSX.El
 
 //#endregion
 
-ink.render(createElement(useFocusExampleFn))
+ink.render(createElement(UseFocusExample))

@@ -22,28 +22,23 @@ import {
 } from "r3bl-ts-utils"
 import React, { createElement, FC, useMemo } from "react"
 
-//#region Main function component.
-
-const functionComponent: FC = () => render(runHooks())
-
-//#endregion
-
 //#region runHooks.
 
-interface RenderContext {
+interface Context {
   keyPress: UserInputKeyPress | undefined
   inRawMode: boolean
 }
 
-const runHooks = (): RenderContext => {
+const runHooks = (): Context => {
   const app = useApp()
   
-  const createShortcuts = () => _also(
-    createNewKeyPressesToActionMap(),
-    map => map
-      .set([ "q", "ctrl+q" ], app.exit)
-      .set([ "x", "ctrl+x" ], app.exit)
-  )
+  const createShortcuts = (): ReturnType<typeof createNewKeyPressesToActionMap> =>
+    _also(
+      createNewKeyPressesToActionMap(),
+      map => map
+        .set([ "q", "ctrl+q" ], app.exit)
+        .set([ "x", "ctrl+x" ], app.exit)
+    )
   
   return _let(
     useMemo(createShortcuts, []),
@@ -55,25 +50,23 @@ const runHooks = (): RenderContext => {
 
 //#region UI.
 
-const render = (ctx: RenderContext) => {
-  const { keyPress, inRawMode } = ctx
+const App: FC = () => {
+  const { keyPress, inRawMode } = runHooks()
   return (
     <Box flexDirection="column">
-      {keyPress && <Row_Debug inRawMode={inRawMode} keyPress={keyPress.toString()}/>}
+      <Row_Debug inRawMode={inRawMode} keyPress={keyPress}/>
       <Text>{TextColor.builder.rainbow.build()("Your example goes here!")}</Text>
     </Box>
   )
 }
 
-const Row_Debug: FC<{ inRawMode: boolean; keyPress: string | undefined }> = ({
-  keyPress,
-  inRawMode,
-}): JSX.Element => inRawMode ? (
-  <Text color="magenta">keyPress: {keyPress}</Text>
-) : (
-  <Text color="gray">keyb disabled</Text>
-)
+const Row_Debug: FC<Context> =
+  ({ keyPress, inRawMode }) =>
+    inRawMode ?
+      <Text color="magenta">keyPress: {keyPress ? `${keyPress}` : "n/a"}</Text> :
+      <Text color="gray">keyb disabled</Text>
+
 
 //#endregion
 
-ink.render(createElement(functionComponent))
+ink.render(createElement(App))

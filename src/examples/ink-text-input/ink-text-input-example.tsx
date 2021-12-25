@@ -15,90 +15,125 @@
  *
  */
 
-import * as ink from "ink"
-import { Box, Text, useApp } from "ink"
+import { Box, render, Text, useApp } from "ink"
 import TextInput from "ink-text-input"
+import _ from "lodash"
 import {
   _also, _let, createNewKeyPressesToActionMap, SetState, StateHook, TextColor,
-  UseKeyboardReturnType, useKeyboardWithMap, UserInputKeyPress, useStateIfMounted,
+  UseKeyboardReturnType, useKeyboardWithMap, useStateIfMounted,
 } from "r3bl-ts-utils"
-import React, { createElement, FC, ReactElement, useMemo } from "react"
+import React, { createElement, FC, ReactElement, useEffect, useMemo } from "react"
 
-//#region runHooks.
+let DEBUG = true
+let count = 0
 
-class State {
-  showInput = true
-  textInput = ""
+namespace types {
+  export class State {
+    showInput = true
+    textInput = ""
+    toString = () => JSON.stringify(this)
+  }
+  
+  export type StateHolder = { state: State, setState: SetState<State>, uid: string }
+  
+  export type Context = StateHolder & UseKeyboardReturnType
 }
 
-type StateHolder = { state: State, setState: SetState<State> }
-
-type RenderContext = StateHolder & UseKeyboardReturnType
-
-const runHooks = (): RenderContext => {
-  const app = useApp()
-  
-  const [ state, setState ]: StateHook<State> = useStateIfMounted(new State())
-  
-  const createShortcuts = (): ReturnType<typeof createNewKeyPressesToActionMap> => 
-    _also(
-      createNewKeyPressesToActionMap(),
-      map => map
-        .set([ "q", "ctrl+q" ], app.exit)
-        .set([ "x", "ctrl+x" ], app.exit)
-    )
-  
-  const useKeyboardReturnValue: ReturnType<typeof useKeyboardWithMap> =
-    _let(
-      useMemo(createShortcuts, [ createShortcuts ]),
-      useKeyboardWithMap
-    )
-  
-  return { state, setState, ...useKeyboardReturnValue }
-}
-
-//#endregion
-
-//#region UI.
-
-const render = ({ keyPress, inRawMode, state, setState }: RenderContext): ReactElement =>
-  <Box flexDirection="column">
-    {keyPress && rowDebug(inRawMode, keyPress)}
-    {
-      state.showInput ?
-        <UseTextInput state={state} setState={setState}/> :
-        <Text>{TextColor.builder.cyan.underline.bold.build()(state.textInput)}</Text>
+namespace hooks {
+  export function run(): types.Context {
+    const app = useApp()
+    
+    const [ state, setState ]: StateHook<types.State> = useStateIfMounted(new types.State())
+    
+    const createShortcuts = (): ReturnType<typeof createNewKeyPressesToActionMap> =>
+      _also(
+        createNewKeyPressesToActionMap(),
+        map => map
+          .set([ "q", "ctrl+q" ], app.exit)
+          .set([ "x", "ctrl+x" ], app.exit)
+      )
+    
+    const useKeyboardReturnValue: ReturnType<typeof useKeyboardWithMap> =
+      _let(
+        useMemo(createShortcuts, []),
+        useKeyboardWithMap
+      )
+    
+    return {
+      state, setState, ...useKeyboardReturnValue,
+      uid: `${count++}`
     }
-  </Box>
+  }
+}
 
-const rowDebug = (inRawMode: boolean, keyPress: UserInputKeyPress): ReactElement =>
-  inRawMode ? 
-    <Text color="magenta">keyPress: {keyPress.toString()}</Text> : 
-    <Text color="gray">keyb disabled</Text>
-
-const UseTextInput: FC<StateHolder> = ({ state, setState }) =>
-  _let(
-    useStateIfMounted(""),
-    ([ query, setQuery ]: StateHook<string>): ReactElement =>
+/**
+ * Don't define a variable in the "global" scope of the namespace. There should be no local
+ * variables that are defined since they can have issues w/ React function component state. For eg,
+ * `ctx` should not be defined globally but only inside the `Root` function component.
+ */
+namespace app {
+  export const main = () => <Root/>
+  
+  const Root: FC = () => {
+    const ctx: types.Context = hooks.run()
+    
+    // Debug.
+    DEBUG && useEffect(() => {
+      const text = `${ctx.uid}, ${ctx.state}, ${ctx.keyPress}`
+      const randomColor: TextColor = _.sample([
+        new TextColor().red,
+        new TextColor().yellow,
+        new TextColor().cyan,
+        new TextColor().green,
+        new TextColor().magenta,
+        new TextColor().grey,
+      ])!
+      console.log(randomColor.applyFormatting(text))
+    })
+    
+    const { state } = ctx
+    const text: string = TextColor.builder.cyan.underline.bold.build()(state.textInput)
+    return (
       <Box flexDirection="column">
-        <Box flexDirection="row" marginRight={1}>
-          <Text color={"red"}>Enter your query: </Text>
-          <TextInput
-            placeholder="Type something & press enter when done, or q to exit"
-            value={query}
-            onChange={setQuery}
-            onSubmit={() => setState({ ...state, showInput: false, textInput: query })}
-          />
+        <RowDebug ctx={ctx}/>
+        {state.showInput ? <UseTextInput ctx={ctx}/> : <Text>{text}</Text>}
       </Box>
-      <Text>You typed: {TextColor.builder.america.bold.build()(query)}</Text>
-    </Box>
-  )
+    )
+  }
+  
+  type Props = { ctx: types.Context }
+  const RowDebug: FC<Props> = ({ ctx }) => {
+    const { keyPress, inRawMode } = ctx
+    return inRawMode ?
+      <Text color="magenta">keyPress: {keyPress ? `${keyPress}` : "n/a"}</Text> :
+      <Text color="gray">keyb disabled</Text>
+  }
+  
+  const UseTextInput: FC<Props> = ({ ctx }) => {
+    const { state, setState } = ctx
+    return _let(
+      useStateIfMounted(""),
+      ([ query, setQuery ]: StateHook<string>): ReactElement =>
+        <Box flexDirection="column">
+          <Box flexDirection="row" marginRight={1}>
+            <Text color={"red"}>Enter your query: </Text>
+            <TextInput
+              placeholder="Type something & press enter when done, or q to exit"
+              value={query}
+              onChange={setQuery}
+              onSubmit={() => setState({ ...state, showInput: false, textInput: query })}
+            />
+          </Box>
+          <Text>You typed: {TextColor.builder.america.bold.build()(query)}</Text>
+        </Box>
+    )
+  }
+}
 
-//#endregion
+const Wrapper: FC = () =>
+  <>
+    {app.main()}
+    {app.main()}
+  </>
 
-//#region Main function component.
-
-const functionComponent = () => render(runHooks())
-ink.render(createElement(functionComponent))
-
-//#endregion
+render(createElement(Wrapper))

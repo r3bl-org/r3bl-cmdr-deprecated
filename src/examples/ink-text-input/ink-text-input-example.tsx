@@ -19,20 +19,27 @@ import * as ink from "ink"
 import { Box, Text, useApp } from "ink"
 import TextInput from "ink-text-input"
 import {
-  _also, _let, createNewKeyPressesToActionMap, TextColor, useKeyboardWithMap, UserInputKeyPress,
-  useStateIfMounted,
+  _also, _let, createNewKeyPressesToActionMap, SetState, StateHook, TextColor,
+  UseKeyboardReturnType, useKeyboardWithMap, UserInputKeyPress, useStateIfMounted,
 } from "r3bl-ts-utils"
 import React, { createElement, FC, ReactElement, useMemo } from "react"
 
 //#region runHooks.
 
-interface RenderContext {
-  keyPress: UserInputKeyPress | undefined
-  inRawMode: boolean
+class State {
+  showInput = true
+  textInput = ""
 }
+
+type RenderContext = {
+  state: State,
+  setState: SetState<State>
+} & UseKeyboardReturnType
 
 const runHooks = (): RenderContext => {
   const app = useApp()
+  
+  const [ state, setState ]: StateHook<State> = useStateIfMounted(new State())
   
   const createShortcuts = () => _also(
     createNewKeyPressesToActionMap(),
@@ -41,23 +48,29 @@ const runHooks = (): RenderContext => {
       .set([ "x", "ctrl+x" ], app.exit)
   )
   
-  return _let(
-    useMemo(createShortcuts, [ createShortcuts ]),
-    useKeyboardWithMap
-  )
+  const useKeyboardReturnValue: UseKeyboardReturnType =
+    _let(
+      useMemo(createShortcuts, [ createShortcuts ]),
+      useKeyboardWithMap
+    )
+  
+  return { state, setState, ...useKeyboardReturnValue }
 }
 
 //#endregion
 
 //#region UI.
 
-const render: (ctx: RenderContext) => ReactElement = ({ keyPress, inRawMode }) =>
-  <Box flexDirection="column">
-    {keyPress && rowDebug(inRawMode, keyPress)}
-    <Text>{TextColor.builder.rainbow.build()("Your example goes here!")}</Text>
-    <UseTextInput/>
-  </Box>
-
+const render: (ctx: RenderContext) => ReactElement =
+  ({ keyPress, inRawMode, state, setState }) =>
+    <Box flexDirection="column">
+      {keyPress && rowDebug(inRawMode, keyPress)}
+      {
+        state.showInput ?
+          <UseTextInput state={state} setState={setState}/> :
+          <Text>{TextColor.builder.cyan.underline.bold.build()(state.textInput)}</Text>
+      }
+    </Box>
 
 const rowDebug = (inRawMode: boolean, keyPress: UserInputKeyPress) =>
   inRawMode ? (
@@ -66,17 +79,27 @@ const rowDebug = (inRawMode: boolean, keyPress: UserInputKeyPress) =>
     <Text color="gray">keyb disabled</Text>
   )
 
-const UseTextInput: FC = () => _let(
-  useStateIfMounted(""),
-  ([ query, setQuery ]) =>
-    <Box flexDirection="column">
-      <Box flexDirection="row" marginRight={1}>
-        <Text color={"red"}>Enter your query: </Text>
-        <TextInput value={query} onChange={setQuery}/>
+const UseTextInput: FC<{ state: State, setState: SetState<State> }> =
+  ({ state, setState }) => _let(
+    useStateIfMounted(""),
+    ([ query, setQuery ]) =>
+      <Box flexDirection="column">
+        <Box flexDirection="row" marginRight={1}>
+          <Text color={"red"}>Enter your query: </Text>
+          <TextInput
+            placeholder="Type something & press enter when done, or q to exit"
+            value={query}
+            onChange={setQuery}
+            onSubmit={() => setState({
+              ...state,
+              showInput: false,
+              textInput: query
+            })}
+          />
+        </Box>
+        <Text>You typed: {TextColor.builder.america.bold.build()(query)}</Text>
       </Box>
-      <Text>You typed: {TextColor.builder.america.bold.build()(query)}</Text>
-    </Box>
-)
+  )
 
 //#endregion
 

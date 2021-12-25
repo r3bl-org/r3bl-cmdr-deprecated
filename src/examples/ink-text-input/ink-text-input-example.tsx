@@ -31,24 +31,24 @@ class State {
   textInput = ""
 }
 
-type RenderContext = {
-  state: State,
-  setState: SetState<State>
-} & UseKeyboardReturnType
+type StateHolder = { state: State, setState: SetState<State> }
+
+type RenderContext = StateHolder & UseKeyboardReturnType
 
 const runHooks = (): RenderContext => {
   const app = useApp()
   
   const [ state, setState ]: StateHook<State> = useStateIfMounted(new State())
   
-  const createShortcuts = () => _also(
-    createNewKeyPressesToActionMap(),
-    map => map
-      .set([ "q", "ctrl+q" ], app.exit)
-      .set([ "x", "ctrl+x" ], app.exit)
-  )
+  const createShortcuts = (): ReturnType<typeof createNewKeyPressesToActionMap> => 
+    _also(
+      createNewKeyPressesToActionMap(),
+      map => map
+        .set([ "q", "ctrl+q" ], app.exit)
+        .set([ "x", "ctrl+x" ], app.exit)
+    )
   
-  const useKeyboardReturnValue: UseKeyboardReturnType =
+  const useKeyboardReturnValue: ReturnType<typeof useKeyboardWithMap> =
     _let(
       useMemo(createShortcuts, [ createShortcuts ]),
       useKeyboardWithMap
@@ -61,28 +61,25 @@ const runHooks = (): RenderContext => {
 
 //#region UI.
 
-const render: (ctx: RenderContext) => ReactElement =
-  ({ keyPress, inRawMode, state, setState }) =>
-    <Box flexDirection="column">
-      {keyPress && rowDebug(inRawMode, keyPress)}
-      {
-        state.showInput ?
-          <UseTextInput state={state} setState={setState}/> :
-          <Text>{TextColor.builder.cyan.underline.bold.build()(state.textInput)}</Text>
-      }
-    </Box>
+const render = ({ keyPress, inRawMode, state, setState }: RenderContext): ReactElement =>
+  <Box flexDirection="column">
+    {keyPress && rowDebug(inRawMode, keyPress)}
+    {
+      state.showInput ?
+        <UseTextInput state={state} setState={setState}/> :
+        <Text>{TextColor.builder.cyan.underline.bold.build()(state.textInput)}</Text>
+    }
+  </Box>
 
-const rowDebug = (inRawMode: boolean, keyPress: UserInputKeyPress) =>
-  inRawMode ? (
-    <Text color="magenta">keyPress: {keyPress.toString()}</Text>
-  ) : (
+const rowDebug = (inRawMode: boolean, keyPress: UserInputKeyPress): ReactElement =>
+  inRawMode ? 
+    <Text color="magenta">keyPress: {keyPress.toString()}</Text> : 
     <Text color="gray">keyb disabled</Text>
-  )
 
-const UseTextInput: FC<{ state: State, setState: SetState<State> }> =
-  ({ state, setState }) => _let(
+const UseTextInput: FC<StateHolder> = ({ state, setState }) =>
+  _let(
     useStateIfMounted(""),
-    ([ query, setQuery ]) =>
+    ([ query, setQuery ]: StateHook<string>): ReactElement =>
       <Box flexDirection="column">
         <Box flexDirection="row" marginRight={1}>
           <Text color={"red"}>Enter your query: </Text>
@@ -90,22 +87,18 @@ const UseTextInput: FC<{ state: State, setState: SetState<State> }> =
             placeholder="Type something & press enter when done, or q to exit"
             value={query}
             onChange={setQuery}
-            onSubmit={() => setState({
-              ...state,
-              showInput: false,
-              textInput: query
-            })}
+            onSubmit={() => setState({ ...state, showInput: false, textInput: query })}
           />
-        </Box>
-        <Text>You typed: {TextColor.builder.america.bold.build()(query)}</Text>
       </Box>
+      <Text>You typed: {TextColor.builder.america.bold.build()(query)}</Text>
+    </Box>
   )
 
 //#endregion
 
 //#region Main function component.
 
-const functionComponent: FC = () => render(runHooks())
+const functionComponent = () => render(runHooks())
 ink.render(createElement(functionComponent))
 
 //#endregion

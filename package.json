@@ -1,5 +1,5 @@
 {
-  "name": "r3bl-commander",
+  "name": "rc",
   "version": "0.0.1",
   "license": "Apache 2.0",
   "bin": "dist/cli.js",

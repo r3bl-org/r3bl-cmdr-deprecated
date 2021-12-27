@@ -23,117 +23,106 @@ import {
 } from "r3bl-ts-utils"
 import React, { createElement, FC, ReactElement, useEffect, useMemo } from "react"
 
+// Constants & types.
+
 let DEBUG = true
 let count = 0
 
-namespace types {
-  export class MyState {
-    showInput = true
-    textInput = ""
-    toString = () => JSON.stringify(this)
-  }
-  
-  export type Context = UseKeyboardReturnType & {
-    stateHolder: StateHolder<MyState>
-    uid: string
-  }
+class MyState {
+  showInput = true
+  textInput = ""
+  toString = () => JSON.stringify(this)
 }
 
-namespace hooks {
-  import Context = types.Context
-  import MyState = types.MyState
-  
-  export function run(): Context {
-    const app = useApp()
-    
-    const stateHolder: StateHolder<MyState> = useStateSafely(new MyState())
-    
-    const createShortcuts = (): ReturnType<typeof createNewKeyPressesToActionMap> =>
-      _also(
-        createNewKeyPressesToActionMap(),
-        map => map
-          .set([ "q", "ctrl+q" ], app.exit)
-          .set([ "x", "ctrl+x" ], app.exit)
-      )
-    
-    const useKeyboardReturnValue: ReturnType<typeof useKeyboardWithMap> =
-      _let(
-        useMemo(createShortcuts, []),
-        useKeyboardWithMap
-      )
-    
-    return {
-      stateHolder,
-      ...useKeyboardReturnValue,
-      uid: `${count++}`
-    }
-  }
+type Context = UseKeyboardReturnType & {
+  stateHolder: StateHolder<MyState>
+  uid: string
 }
 
-/**
- * Don't define a variable in the "global" scope of the namespace. There should be no local
- * variables that are defined since they can have issues w/ React function component state. For eg,
- * `ctx` should not be defined globally but only inside the `Root` function component.
- */
-namespace app {
-  import Context = types.Context
+// Hooks.
+
+export function runHooks(): Context {
+  const app = useApp()
   
-  export const createComponent = () => <Root/>
+  const stateHolder: StateHolder<MyState> = useStateSafely(new MyState())
   
-  const Root: FC = () => {
-    const ctx: Context = hooks.run()
-    
-    // Debug.
-    DEBUG && useEffect(() => {
-      const text = `${ctx.uid}, ${ctx.stateHolder.value}, ${ctx.keyPress}`
-      console.log(TextColor.builder.randomFgColor.build()(text))
-    })
-    
-    const { stateHolder } = ctx
-    const text: string = TextColor.builder.cyan.underline.bold.build()(stateHolder.value.textInput)
-    return (
-      <Box flexDirection="column">
-        <RowDebug ctx={ctx}/>
-        {stateHolder.value.showInput ? <UseTextInput ctx={ctx}/> : <Text>{text}</Text>}
-      </Box>
+  const createShortcuts = (): ReturnType<typeof createNewKeyPressesToActionMap> =>
+    _also(
+      createNewKeyPressesToActionMap(),
+      map => map
+        .set([ "q", "ctrl+q" ], app.exit)
+        .set([ "x", "ctrl+x" ], app.exit)
     )
-  }
   
-  type Props = { ctx: Context }
-  const RowDebug: FC<Props> = ({ ctx }) => {
-    const { keyPress, inRawMode } = ctx
-    return inRawMode ?
-      <Text color="magenta">keyPress: {keyPress ? `${keyPress}` : "n/a"}</Text> :
-      <Text color="gray">keyb disabled</Text>
-  }
-  
-  const UseTextInput: FC<Props> = ({ ctx }) =>
+  const useKeyboardReturnValue: ReturnType<typeof useKeyboardWithMap> =
     _let(
-      useStateSafely(""),
-      ({ value: query, setValue: setQuery }: StateHolder<string>): ReactElement =>
-        <Box flexDirection="column">
-          <Box flexDirection="row" marginRight={1}>
-            <Text color={"red"}>Enter your query: </Text>
-            <TextInput
-              placeholder="Type something & press enter when done, or q to exit"
-              value={query}
-              onChange={setQuery}
-              onSubmit={() => ctx.stateHolder.setValue({
-                ...ctx.stateHolder.value,
-                showInput: false,
-                textInput: query
-              })}
-            />
-          </Box>
-          <Text>You typed: {TextColor.builder.america.bold.build()(query)}</Text>
-        </Box>
+      useMemo(createShortcuts, []),
+      useKeyboardWithMap
     )
+  
+  return {
+    stateHolder,
+    ...useKeyboardReturnValue,
+    uid: `${count++}`
+  }
 }
+
+// Function component.
+
+const Root: FC = () => {
+  const ctx: Context = runHooks()
+  
+  // Debug.
+  DEBUG && useEffect(() => {
+    const text = `${ctx.uid}, ${ctx.stateHolder.value}, ${ctx.keyPress}`
+    console.log(TextColor.builder.randomFgColor.build()(text))
+  })
+  
+  const { stateHolder } = ctx
+  const text: string = TextColor.builder.cyan.underline.bold.build()(stateHolder.value.textInput)
+  return (
+    <Box flexDirection="column">
+      <RowDebug ctx={ctx}/>
+      {stateHolder.value.showInput ? <UseTextInput ctx={ctx}/> : <Text>{text}</Text>}
+    </Box>
+  )
+}
+
+type Props = { ctx: Context }
+
+const RowDebug: FC<Props> = ({ ctx }) => {
+  const { keyPress, inRawMode } = ctx
+  return inRawMode ?
+    <Text color="magenta">keyPress: {keyPress ? `${keyPress}` : "n/a"}</Text> :
+    <Text color="gray">keyb disabled</Text>
+}
+
+const UseTextInput: FC<Props> = ({ ctx }) =>
+  _let(
+    useStateSafely(""),
+    ({ value: query, setValue: setQuery }: StateHolder<string>): ReactElement =>
+      <Box flexDirection="column">
+        <Box flexDirection="row" marginRight={1}>
+          <Text color={"red"}>Enter your query: </Text>
+          <TextInput
+            placeholder="Type something & press enter when done, or q to exit"
+            value={query}
+            onChange={setQuery}
+            onSubmit={() => ctx.stateHolder.setValue({
+              ...ctx.stateHolder.value,
+              showInput: false,
+              textInput: query
+            })}
+          />
+        </Box>
+        <Text>You typed: {TextColor.builder.america.bold.build()(query)}</Text>
+      </Box>
+  )
 
 const Wrapper: FC = () =>
   <>
-    {app.createComponent()}
-    {app.createComponent()}
+    <Root/>
+    <Root/>
   </>
 
 render(createElement(Wrapper))

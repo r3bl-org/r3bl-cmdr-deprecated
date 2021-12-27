@@ -17,7 +17,6 @@
 
 import { Box, render, Text, useApp } from "ink"
 import TextInput from "ink-text-input"
-import _ from "lodash"
 import {
   _also, _let, createNewKeyPressesToActionMap, StateHolder, TextColor, UseKeyboardReturnType,
   useKeyboardWithMap, useStateSafely,
@@ -87,15 +86,7 @@ namespace app {
     // Debug.
     DEBUG && useEffect(() => {
       const text = `${ctx.uid}, ${ctx.stateHolder.value}, ${ctx.keyPress}`
-      const randomColor: TextColor = _.sample([
-        new TextColor().red,
-        new TextColor().yellow,
-        new TextColor().cyan,
-        new TextColor().green,
-        new TextColor().magenta,
-        new TextColor().grey,
-      ])!
-      console.log(randomColor.applyFormatting(text))
+      console.log(TextColor.builder.randomFgColor.build()(text))
     })
     
     const { stateHolder } = ctx

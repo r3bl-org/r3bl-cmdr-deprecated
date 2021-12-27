@@ -15,19 +15,18 @@
  *
  */
 
-import * as ink from "ink"
-import { Box, Text, useApp } from "ink"
+import { Box, render, Text, useApp } from "ink"
 import {
-  _also, _let, createNewKeyPressesToActionMap, TextColor, useKeyboardWithMap, UserInputKeyPress,
+  _also, _let, createNewKeyPressesToActionMap, TextColor, useKeyboardWithMap,
 } from "r3bl-ts-utils"
 import React, { createElement, FC, useMemo } from "react"
 
-//#region runHooks.
+// Types & data classes.
 
-interface Context {
-  keyPress: UserInputKeyPress | undefined
-  inRawMode: boolean
-}
+type Context = {} & ReturnType<typeof useKeyboardWithMap>
+type Props = { ctx: Context }
+
+// Hooks.
 
 const runHooks = (): Context => {
   const app = useApp()
@@ -46,27 +45,28 @@ const runHooks = (): Context => {
   )
 }
 
-//#endregion
-
-//#region UI.
+// Function component.
 
 const App: FC = () => {
-  const { keyPress, inRawMode } = runHooks()
+  const ctx = runHooks()
+  
   return (
     <Box flexDirection="column">
-      <Row_Debug inRawMode={inRawMode} keyPress={keyPress}/>
+      <Row_Debug ctx={ctx}/>
       <Text>{TextColor.builder.rainbow.build()("Your example goes here!")}</Text>
     </Box>
   )
 }
 
-const Row_Debug: FC<Context> =
-  ({ keyPress, inRawMode }) =>
-    inRawMode ?
+const Row_Debug: FC<Props> =
+  ({ ctx }) => {
+    const { keyPress, inRawMode } = ctx
+    return inRawMode ?
       <Text color="magenta">keyPress: {keyPress ? `${keyPress}` : "n/a"}</Text> :
       <Text color="gray">keyb disabled</Text>
+  }
 
 
-//#endregion
+// Main.
 
-ink.render(createElement(App))
+render(createElement(App))

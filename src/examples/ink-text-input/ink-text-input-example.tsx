@@ -19,8 +19,8 @@ import { Box, render, Text, useApp } from "ink"
 import TextInput from "ink-text-input"
 import _ from "lodash"
 import {
-  _also, _let, createNewKeyPressesToActionMap, SetState, StateHook, TextColor,
-  UseKeyboardReturnType, useKeyboardWithMap, useStateIfMounted,
+  _also, _let, createNewKeyPressesToActionMap, StateHolder, TextColor, UseKeyboardReturnType,
+  useKeyboardWithMap, useStateSafely,
 } from "r3bl-ts-utils"
 import React, { createElement, FC, ReactElement, useEffect, useMemo } from "react"
 
@@ -28,22 +28,26 @@ let DEBUG = true
 let count = 0
 
 namespace types {
-  export class State {
+  export class MyState {
     showInput = true
     textInput = ""
     toString = () => JSON.stringify(this)
   }
   
-  export type StateHolder = { state: State, setState: SetState<State>, uid: string }
-  
-  export type Context = StateHolder & UseKeyboardReturnType
+  export type Context = UseKeyboardReturnType & {
+    stateHolder: StateHolder<MyState>
+    uid: string
+  }
 }
 
 namespace hooks {
-  export function run(): types.Context {
+  import Context = types.Context
+  import MyState = types.MyState
+  
+  export function run(): Context {
     const app = useApp()
     
-    const [ state, setState ]: StateHook<types.State> = useStateIfMounted(new types.State())
+    const stateHolder: StateHolder<MyState> = useStateSafely(new MyState())
     
     const createShortcuts = (): ReturnType<typeof createNewKeyPressesToActionMap> =>
       _also(
@@ -60,7 +64,8 @@ namespace hooks {
       )
     
     return {
-      state, setState, ...useKeyboardReturnValue,
+      stateHolder,
+      ...useKeyboardReturnValue,
       uid: `${count++}`
     }
   }
@@ -72,14 +77,16 @@ namespace hooks {
  * `ctx` should not be defined globally but only inside the `Root` function component.
  */
 namespace app {
-  export const main = () => <Root/>
+  import Context = types.Context
+  
+  export const createComponent = () => <Root/>
   
   const Root: FC = () => {
-    const ctx: types.Context = hooks.run()
+    const ctx: Context = hooks.run()
     
     // Debug.
     DEBUG && useEffect(() => {
-      const text = `${ctx.uid}, ${ctx.state}, ${ctx.keyPress}`
+      const text = `${ctx.uid}, ${ctx.stateHolder.value}, ${ctx.keyPress}`
       const randomColor: TextColor = _.sample([
         new TextColor().red,
         new TextColor().yellow,
@@ -91,17 +98,17 @@ namespace app {
       console.log(randomColor.applyFormatting(text))
     })
     
-    const { state } = ctx
-    const text: string = TextColor.builder.cyan.underline.bold.build()(state.textInput)
+    const { stateHolder } = ctx
+    const text: string = TextColor.builder.cyan.underline.bold.build()(stateHolder.value.textInput)
     return (
       <Box flexDirection="column">
         <RowDebug ctx={ctx}/>
-        {state.showInput ? <UseTextInput ctx={ctx}/> : <Text>{text}</Text>}
+        {stateHolder.value.showInput ? <UseTextInput ctx={ctx}/> : <Text>{text}</Text>}
       </Box>
     )
   }
   
-  type Props = { ctx: types.Context }
+  type Props = { ctx: Context }
   const RowDebug: FC<Props> = ({ ctx }) => {
     const { keyPress, inRawMode } = ctx
     return inRawMode ?
@@ -109,11 +116,10 @@ namespace app {
       <Text color="gray">keyb disabled</Text>
   }
   
-  const UseTextInput: FC<Props> = ({ ctx }) => {
-    const { state, setState } = ctx
-    return _let(
-      useStateIfMounted(""),
-      ([ query, setQuery ]: StateHook<string>): ReactElement =>
+  const UseTextInput: FC<Props> = ({ ctx }) =>
+    _let(
+      useStateSafely(""),
+      ({ value: query, setValue: setQuery }: StateHolder<string>): ReactElement =>
         <Box flexDirection="column">
           <Box flexDirection="row" marginRight={1}>
             <Text color={"red"}>Enter your query: </Text>
@@ -121,19 +127,22 @@ namespace app {
               placeholder="Type something & press enter when done, or q to exit"
               value={query}
               onChange={setQuery}
-              onSubmit={() => setState({ ...state, showInput: false, textInput: query })}
+              onSubmit={() => ctx.stateHolder.setValue({
+                ...ctx.stateHolder.value,
+                showInput: false,
+                textInput: query
+              })}
             />
           </Box>
           <Text>You typed: {TextColor.builder.america.bold.build()(query)}</Text>
         </Box>
     )
-  }
 }
 
 const Wrapper: FC = () =>
   <>
-    {app.main()}
-    {app.main()}
+    {app.createComponent()}
+    {app.createComponent()}
   </>
 
 render(createElement(Wrapper))

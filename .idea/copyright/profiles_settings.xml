@@ -3,5 +3,8 @@
     <module2copyright>
       <element module="All" copyright="r3bl-apache" />
     </module2copyright>
+    <LanguageOptions name="__TEMPLATE__">
+      <option name="relativeBefore" value="false" />
+    </LanguageOptions>
   </settings>
 </component>

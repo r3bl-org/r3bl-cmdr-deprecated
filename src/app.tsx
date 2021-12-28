@@ -15,9 +15,9 @@
  *
  */
 
-import { Box, Text, useApp } from "ink"
+import { Box, Text } from "ink"
 import {
-  _also, createNewKeyPressesToActionMap, KeyBindingsForActions, TTYSize,
+  _also, createNewKeyPressesToActionMap, KeyBindingsForActions, LifecycleHelper, TTYSize,
   useClockWithLocalTimeFormat, useKeyboardWithMap, usePreventProcessExitDuringTesting,
   UserInputKeyPress, useTTYSize,
 } from "r3bl-ts-utils"
@@ -44,8 +44,7 @@ const runHooks = (name: string) => {
   const ttySize: TTYSize = useTTYSize()
   const { localeTimeString: formattedTime } = useClockWithLocalTimeFormat(3_000)
   
-  const app = useApp()
-  const map: KeyBindingsForActions = useMemo(() => createShortcutsMap(app), [])
+  const map: KeyBindingsForActions = useMemo(() => createShortcutsMap(), [])
   const { keyPress, inRawMode } = useKeyboardWithMap(map)
   
   return {
@@ -61,10 +60,10 @@ const runHooks = (name: string) => {
 
 //#region handleKeyboard.
 
-const createShortcutsMap = (app: ReturnType<typeof useApp>): KeyBindingsForActions => _also(
+const createShortcutsMap = (): KeyBindingsForActions => _also(
   createNewKeyPressesToActionMap(),
   map => map
-    .set([ "q", "ctrl+q", "escape" ], app.exit)
+    .set([ "q", "ctrl+q", "escape" ], LifecycleHelper.fireExit)
 )
 
 //#endregion

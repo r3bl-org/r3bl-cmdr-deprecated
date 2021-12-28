@@ -18,10 +18,22 @@
 import { Box, render, Text, useApp } from "ink"
 import TextInput from "ink-text-input"
 import {
-  _also, _let, createNewKeyPressesToActionMap, StateHolder, TextColor, UseKeyboardReturnType,
-  useKeyboardWithMap, useStateSafely,
+  _also, _let, createNewKeyPressesToActionMap, StateHolder, StateHook, TextColor,
+  UseKeyboardReturnType, useKeyboardWithMap, useStateSafely,
 } from "r3bl-ts-utils"
 import React, { createElement, FC, ReactElement, useEffect, useMemo } from "react"
+
+/*
+ * A new hook `useStateSafely` is needed in this example because when the keyboard shortcut "q" or
+ * "ctrl+q" is pressed, it causes the app to exit, and there are still React components mounted,
+ * which try and respond to the keypress (eg: `TextInput`) and this causes a runtime exception to be
+ * thrown. This doesn't stop the CLI app from exiting, but it does cause an inelegant error message
+ * to be dumped on the console, when this happens.
+ *
+ * Unfortunately, using an event emitter to fire an exit event, and then unmounting (and then
+ * waiting for exit & running `process.exit()`) the entire ink app (via an `Instance` reference
+ * returned by `render()`) doesn't really solve this problem.
+ */
 
 // Constants & types.
 
@@ -42,17 +54,18 @@ type Context = UseKeyboardReturnType & {
 // Hooks.
 
 export function runHooks(): Context {
-  const app = useApp()
-  
   const stateHolder: StateHolder<MyState> = useStateSafely(new MyState())
   
-  const createShortcuts = (): ReturnType<typeof createNewKeyPressesToActionMap> =>
-    _also(
+  const app = useApp()
+  
+  const createShortcuts = (): ReturnType<typeof createNewKeyPressesToActionMap> => {
+    return _also(
       createNewKeyPressesToActionMap(),
       map => map
         .set([ "q", "ctrl+q" ], app.exit)
         .set([ "x", "ctrl+x" ], app.exit)
     )
+  }
   
   const useKeyboardReturnValue: ReturnType<typeof useKeyboardWithMap> =
     _let(
@@ -99,8 +112,8 @@ const RowDebug: FC<Props> = ({ ctx }) => {
 
 const UseTextInput: FC<Props> = ({ ctx }) =>
   _let(
-    useStateSafely(""),
-    ({ value: query, setValue: setQuery }: StateHolder<string>): ReactElement =>
+    useStateSafely("").asArray(),
+    ([ query, setQuery ]: StateHook<string>): ReactElement =>
       <Box flexDirection="column">
         <Box flexDirection="row" marginRight={1}>
           <Text color={"red"}>Enter your query: </Text>

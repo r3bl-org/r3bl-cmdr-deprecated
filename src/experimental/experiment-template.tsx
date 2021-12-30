@@ -23,7 +23,7 @@ import React, { createElement, FC, useMemo } from "react"
 
 // Types & data classes.
 
-type Context = {} & ReturnType<typeof useKeyboardWithMap>
+type Context = ReturnType<typeof useKeyboardWithMap>
 type Props = { ctx: Context }
 
 // Hooks.
@@ -60,12 +60,11 @@ const App: FC = () => {
 
 const Row_Debug: FC<Props> =
   ({ ctx }) => {
-    const { keyPress, inRawMode } = ctx
-    return inRawMode ?
-      <Text color="magenta">keyPress: {keyPress ? `${keyPress}` : "n/a"}</Text> :
+    const { keyPress: kp, inRawMode: mode } = ctx
+    return mode ?
+      <Text color="magenta">keyPress: {kp ? `${kp.toString()}` : "n/a"}</Text> :
       <Text color="gray">keyb disabled</Text>
   }
-
 
 // Main.
 

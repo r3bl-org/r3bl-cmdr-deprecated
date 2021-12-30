@@ -37,7 +37,7 @@ import React, { createElement, FC, ReactElement, useEffect, useMemo } from "reac
 
 // Constants & types.
 
-let DEBUG = true
+const DEBUG = true
 let count = 0
 
 class MyState {

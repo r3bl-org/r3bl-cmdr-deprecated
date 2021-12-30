@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="experimental/use-focus.tsx" type="NodeJSConfigurationType" node-parameters="-r tsm" path-to-js-file="use-focus.tsx" working-dir="$PROJECT_DIR$/src/experimental/focus">
+    <method v="2" />
+  </configuration>
+</component>

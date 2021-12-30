@@ -71,9 +71,9 @@ export const App: FC = () => {
 
 const Row_Debug: FC<Props> =
   ({ ctx }) => {
-    const { keyPress, inRawMode } = ctx
-    return inRawMode ?
-      <Text color="magenta">keyPress: {keyPress ? `${keyPress}` : "n/a"}</Text> :
+    const { keyPress: kp, inRawMode: mode } = ctx
+    return mode ?
+      <Text color="magenta">keyPress: {kp ? `${kp.toString()}` : "n/a"}</Text> :
       <Text color="gray">keyb disabled</Text>
   }
 

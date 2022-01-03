@@ -25,6 +25,6 @@ To run examples (which are single source file sample code), open a terminal in t
 and then run `node -r tsm src/examples/...` as shown below for some examples.
 
 ```shell
-node -r tsm src/examples/focus/use-focus.tsx
-node -r tsm src/examples/dynamic-import/dynamic-require.ts
+node -r tsm src/examples/focus/example.tsx
+node -r tsm src/examples/dynamic-import/using-require.ts
 ```

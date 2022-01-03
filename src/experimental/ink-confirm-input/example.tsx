@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 R3BL LLC. All rights reserved.
+ * Copyright (c) 2021-2022 R3BL LLC. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,50 +17,46 @@
 
 import { Box, render, Text, useApp } from "ink"
 import {
-  _also, _let, createNewKeyPressesToActionMap, StateHolder, UseKeyboardReturnType,
-  useKeyboardWithMap, useStateSafely,
+  _also, createNewShortcutToActionMap, ShortcutToActionMap, StateHolder, UseKeyboardReturnValue,
+  useKeyboardWithMapCached, useStateSafely,
 } from "r3bl-ts-utils"
-import { KeyBindingsForActions } from "r3bl-ts-utils/src/react-ink-hook-utils/use-keyboard"
-import React, { FC, useMemo } from "react"
+import React, { FC } from "react"
 import { ConfirmInput } from "./ink-confirm-input"
 
 // Types & data classes.
-export type Context =
-  { answer: StateHolder<string> }
-  & ReturnType<typeof useKeyboardWithMap>
+export type HookOutput = {
+  answer: StateHolder<string>,
+  useKeyboard: UseKeyboardReturnValue,
+  greeting: string
+}
+export type HookInput = { name: string }
 
-type Props = { ctx: Context }
+type InternalProps = { ctx: HookOutput }
 
 // Hooks.
-const runHooks = (): Context => {
+const runHooks = (input: HookInput): HookOutput => {
+  const { name } = input
+  const app = useApp()
   const [ answer, setAnswer ] = useStateSafely<string>("").asArray()
   
-  return {
-    ...runUseKeyboard(),
-    answer: new StateHolder(answer, setAnswer)
-  }
-}
-
-const runUseKeyboard = (): UseKeyboardReturnType => {
-  const app = useApp()
-  
-  // The return value of this function is cached by useMemo.
-  const createShortcuts = (): KeyBindingsForActions => {
+  const createShortcuts = (): ShortcutToActionMap => {
     return _also(
-      createNewKeyPressesToActionMap(),
-      map => map.set([ "q", "ctrl+q" ], app.exit)
+      createNewShortcutToActionMap(),
+      map => map
+        .set("q", app.exit)
+        .set("ctrl+q", app.exit)
     )
   }
-  
-  return _let(
-    useMemo(createShortcuts, []), // Cache value.
-    useKeyboardWithMap // Pass cached value to hook & return its return value.
-  )
+  return {
+    greeting: `Hello ${name}`,
+    answer: new StateHolder(answer, setAnswer),
+    useKeyboard: useKeyboardWithMapCached(createShortcuts)
+  }
 }
 
 // Function components.
 export const App: FC = () => {
-  const ctx: Context = runHooks()
+  const ctx: HookOutput = runHooks({ name: "" })
   return (
     <Box flexDirection="column">
       <Row_Debug ctx={ctx}/>
@@ -69,15 +65,15 @@ export const App: FC = () => {
   )
 }
 
-const Row_Debug: FC<Props> =
+const Row_Debug: FC<InternalProps> =
   ({ ctx }) => {
-    const { keyPress: kp, inRawMode: mode } = ctx
+    const { keyPress: kp, inRawMode: mode } = ctx.useKeyboard
     return mode ?
       <Text color="magenta">keyPress: {kp ? `${kp.toString()}` : "n/a"}</Text> :
       <Text color="gray">keyb disabled</Text>
   }
 
-const UnicornQuestion: FC<Props> =
+const UnicornQuestion: FC<InternalProps> =
   ({ ctx }) => {
     const handleAnswer = (value: boolean) => ctx.answer.setValue(
       value ? "You love unicorns :)" : "You don't like unicorns :(")

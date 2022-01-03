@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 R3BL LLC. All rights reserved.
+ * Copyright (c) 2021-2022 R3BL LLC. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,54 +17,59 @@
 
 import { Box, render, Text, useApp } from "ink"
 import {
-  _also, _let, createNewKeyPressesToActionMap, TextColor, useKeyboardWithMap,
+  _also, createNewShortcutToActionMap, ShortcutToActionMap, TextColor, UseKeyboardReturnValue,
+  useKeyboardWithMapCached,
 } from "r3bl-ts-utils"
-import React, { createElement, FC, useMemo } from "react"
+import React, { createElement, FC } from "react"
 
 // Types & data classes.
 
-type Context = ReturnType<typeof useKeyboardWithMap>
-type Props = { ctx: Context }
+type HookInput = { name: string }
+type HookOutput = {
+  useKeyboard: UseKeyboardReturnValue,
+  greeting: string
+}
+type InternalProps = { ctx: HookOutput }
 
 // Hooks.
 
-const runHooks = (): Context => {
+const runHooks = (input: HookInput): HookOutput => {
+  const { name } = input
   const app = useApp()
-  
-  const createShortcuts = (): ReturnType<typeof createNewKeyPressesToActionMap> =>
+  const createShortcutsFn = (): ShortcutToActionMap =>
     _also(
-      createNewKeyPressesToActionMap(),
+      createNewShortcutToActionMap(),
       map => map
-        .set([ "q", "ctrl+q" ], app.exit)
-        .set([ "x", "ctrl+x" ], app.exit)
+        .set("q", app.exit)
+        .set("ctrl+q", app.exit)
+        .set("x", app.exit)
+        .set("ctrl+x", app.exit)
     )
-  
-  return _let(
-    useMemo(createShortcuts, []),
-    useKeyboardWithMap
-  )
+  return {
+    greeting: TextColor.builder.rainbow.build()(name),
+    useKeyboard: useKeyboardWithMapCached(createShortcutsFn)
+  }
 }
 
 // Function component.
 
 const App: FC = () => {
-  const ctx = runHooks()
-  
+  const output = runHooks({ name: "Your example goes here!" })
+  const { greeting } = output
   return (
     <Box flexDirection="column">
-      <Row_Debug ctx={ctx}/>
-      <Text>{TextColor.builder.rainbow.build()("Your example goes here!")}</Text>
+      <Row_Debug ctx={output}/>
+      <Text>{greeting}</Text>
     </Box>
   )
 }
 
-const Row_Debug: FC<Props> =
-  ({ ctx }) => {
-    const { keyPress: kp, inRawMode: mode } = ctx
-    return mode ?
-      <Text color="magenta">keyPress: {kp ? `${kp.toString()}` : "n/a"}</Text> :
-      <Text color="gray">keyb disabled</Text>
-  }
+const Row_Debug: FC<InternalProps> = ({ ctx }) => {
+  const { keyPress: kp, inRawMode: mode } = ctx.useKeyboard
+  return mode ?
+    <Text color="magenta">keyPress: {kp ? `${kp.toString()}` : "n/a"}</Text> :
+    <Text color="gray">keyb disabled</Text>
+}
 
 // Main.
 

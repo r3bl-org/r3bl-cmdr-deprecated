@@ -10,7 +10,7 @@ namespace dynamicRequire {
   main()
   
   function main() {
-    const temp = require("./dynamic-import-file")
+    const temp = require("./thing-to-import")
     temp.foo("foo")
   }
   

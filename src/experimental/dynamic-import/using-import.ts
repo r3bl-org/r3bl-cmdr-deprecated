@@ -10,7 +10,7 @@ namespace dynamicImport {
   main().catch(console.log)
   
   async function main() {
-    const temp = await import("./dynamic-import-file")
+    const temp = await import("./thing-to-import")
     temp.foo("foo")
   }
 }

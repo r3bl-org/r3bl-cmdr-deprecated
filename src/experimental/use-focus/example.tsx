@@ -18,8 +18,8 @@
 import * as ink from "ink"
 import { Box, Newline, Text, useApp, useFocus, useFocusManager } from "ink"
 import {
-  _also, createNewKeyPressesToActionMap, KeyBindingsForActions, makeReactElementFromArray,
-  useKeyboardWithMap, UserInputKeyPress,
+  _also, createNewShortcutToActionMap, Keypress, makeReactElementFromArray, ShortcutToActionMap,
+  useKeyboardWithMap,
 } from "r3bl-ts-utils"
 import React, { createElement, FC, ReactElement, useMemo } from "react"
 
@@ -34,7 +34,7 @@ const UseFocusExample: FC = () => render(runHooks())
 const runHooks = (): Context => {
   const app = useApp()
   const focusManager = useFocusManager()
-  const map: KeyBindingsForActions = useMemo(() => createShortcutsMap({ app, focusManager }), [])
+  const map: ShortcutToActionMap = useMemo(() => createShortcutsMap({ app, focusManager }), [])
   const { keyPress, inRawMode } = useKeyboardWithMap(map)
   return { keyPress, inRawMode }
 }
@@ -48,16 +48,17 @@ type CreateActionMapContext = {
   focusManager: ReturnType<typeof useFocusManager>
 }
 
-const createShortcutsMap = (ctx: CreateActionMapContext): KeyBindingsForActions => {
+const createShortcutsMap = (ctx: CreateActionMapContext): ShortcutToActionMap => {
   console.log("createShortcutsMap - cache miss!")
   const { app, focusManager } = ctx
   return _also(
-    createNewKeyPressesToActionMap(),
+    createNewShortcutToActionMap(),
     map => map
-      .set([ "q", "ctrl+q" ], app.exit)
-      .set([ "!" ], focusManager.focus.bind(undefined, "1"))
-      .set([ "@" ], focusManager.focus.bind(undefined, "2"))
-      .set([ "#" ], focusManager.focus.bind(undefined, "3"))
+      .set("q", app.exit)
+      .set("ctrl+q", app.exit)
+      .set("!", focusManager.focus.bind(undefined, "1"))
+      .set("@", focusManager.focus.bind(undefined, "2"))
+      .set("#", focusManager.focus.bind(undefined, "3"))
   )
 }
 
@@ -66,7 +67,7 @@ const createShortcutsMap = (ctx: CreateActionMapContext): KeyBindingsForActions 
 //#region render().
 
 interface Context {
-  keyPress: UserInputKeyPress | undefined
+  keyPress: Readonly<Keypress> | undefined
   inRawMode: boolean
 }
 

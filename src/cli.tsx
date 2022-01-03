@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /*
- * Copyright (c) 2021 R3BL LLC. All rights reserved.
+ * Copyright (c) 2021-2022 R3BL LLC. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import { Command } from "commander"
 import { render } from "ink"
 import { _let, LifecycleHelper, TimerRegistry } from "r3bl-ts-utils"
 import { createElement } from "react"
-import { appFn } from "./app"
+import { App } from "./app"
 
 //#region Parse command line args.
 
@@ -49,7 +49,7 @@ interface CommandLineArgs {
 const createInkApp = (args: CommandLineArgs): ReturnType<typeof render> => {
   const { name } = args
   return render(
-    createElement(appFn, { name: !name ? "Stranger" : name })
+    createElement(App, { name: !name ? "Stranger" : name })
   )
 }
 

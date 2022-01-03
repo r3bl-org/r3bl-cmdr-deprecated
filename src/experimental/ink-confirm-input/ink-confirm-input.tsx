@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 R3BL LLC. All rights reserved.
+ * Copyright (c) 2021-2022 R3BL LLC. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@
  */
 
 import TextInput from "ink-text-input"
-import { StateHook, useStateSafely } from "r3bl-ts-utils"
+import {
+  _also, createNewShortcutToActionMap, ShortcutToActionMap, StateHook, useKeyboardWithMapCached,
+  useStateSafely
+} from "r3bl-ts-utils"
 import React, { FC } from "react"
 import yn from "yn"
 
@@ -31,6 +34,14 @@ export const ConfirmInput: FC<Props> =
   ({ defaultValue, onAnswer, placeholder, placeholderAfterSubmit }) => {
     const [ value, setValue ]: StateHook<string> = useStateSafely("").asArray()
     const [ showCursor, setShowCursor ]: StateHook<boolean> = useStateSafely(true).asArray()
+    
+    let createShortcutsFn = (): ShortcutToActionMap => _also(
+      createNewShortcutToActionMap(),
+      map => map
+        .set("backspace", () => setValue(""))
+        .set("delete", () => setValue(""))
+    )
+    useKeyboardWithMapCached(createShortcutsFn)
     
     const onSubmit = (userInput: string) => {
       onAnswer(yn(userInput, { default: defaultValue }))
@@ -52,4 +63,4 @@ export const ConfirmInput: FC<Props> =
       />
     )
   }
-
+  

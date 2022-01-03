@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 R3BL LLC. All rights reserved.
+ * Copyright (c) 2021-2022 R3BL LLC. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@
 import { render } from "ink-testing-library"
 import { TimerRegistry } from "r3bl-ts-utils"
 import React from "react"
-import { appFn } from "../app"
+import { App } from "../app"
 
 // ink-testing-library: https://github.com/vadimdemedes/ink-testing-library/blob/master/readme.md
 
 afterEach(TimerRegistry.killAll)
 
 test("renders w/ name props", () => {
-  const { lastFrame } = render(React.createElement(appFn, { name: "Grogu" }))
+  const { lastFrame } = render(React.createElement(App, { name: "Grogu" }))
   expect(lastFrame()).toContain("Grogu")
 })

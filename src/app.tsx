@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 R3BL LLC. All rights reserved.
+ * Copyright (c) 2021-2022 R3BL LLC. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,42 +17,37 @@
 
 import { Box, Text } from "ink"
 import {
-  _also, createNewKeyPressesToActionMap, KeyBindingsForActions, LifecycleHelper, TTYSize,
-  useClockWithLocalTimeFormat, useKeyboardWithMap, usePreventProcessExitDuringTesting,
-  UserInputKeyPress, useTTYSize,
+  _also, createNewShortcutToActionMap, LifecycleHelper, ShortcutToActionMap, TTYSize,
+  useClockWithLocalTimeFormat, UseKeyboardReturnValue, useKeyboardWithMapCached,
+  usePreventProcessExitDuringTesting, useTTYSize
 } from "r3bl-ts-utils"
-import React, { FC, useMemo } from "react"
-
-//#region App function component.
-
-export const appFn: FC<{ name: string }> = ({ name }) => render(runHooks(name))
-
-//#endregion
+import React, { FC } from "react"
 
 //#region Hooks.
 
-interface RenderContext {
+interface HooksOutput {
   ttySize: TTYSize
-  inRawMode: boolean
   formattedTime: string
-  name: string
-  keyPress: UserInputKeyPress | undefined
+  greeting: string
+  useKeyboard: UseKeyboardReturnValue
 }
 
-const runHooks = (name: string) => {
+interface HooksInput {
+  name: string
+}
+
+const runHooks = (inputs: HooksInput): HooksOutput => {
+  const { name } = inputs
+  
   usePreventProcessExitDuringTesting() // For testing using `npm run start-dev-watch`.
   const ttySize: TTYSize = useTTYSize()
   const { localeTimeString: formattedTime } = useClockWithLocalTimeFormat(3_000)
   
-  const map: KeyBindingsForActions = useMemo(() => createShortcutsMap(), [])
-  const { keyPress, inRawMode } = useKeyboardWithMap(map)
-  
   return {
-    name,
+    greeting: `Hello ${name}`,
     ttySize,
     formattedTime,
-    inRawMode,
-    keyPress
+    useKeyboard: useKeyboardWithMapCached(createShortcutsMap)
   }
 }
 
@@ -60,22 +55,25 @@ const runHooks = (name: string) => {
 
 //#region handleKeyboard.
 
-const createShortcutsMap = (): KeyBindingsForActions => _also(
-  createNewKeyPressesToActionMap(),
+const createShortcutsMap = (): ShortcutToActionMap => _also(
+  createNewShortcutToActionMap(),
   map => map
-    .set([ "q", "ctrl+q", "escape" ], LifecycleHelper.fireExit)
+    .set("q", LifecycleHelper.fireExit)
+    .set("ctrl+q", LifecycleHelper.fireExit)
+    .set("escape", LifecycleHelper.fireExit)
 )
 
 //#endregion
 
 //#region render().
 
-const render = (args: RenderContext) => {
-  const { keyPress, name, inRawMode, ttySize, formattedTime } = args
+export const App: FC<{ name: string }> = ({ name }) => {
+  const { greeting, useKeyboard, ttySize, formattedTime } = runHooks({ name })
+  const { keyPress, inRawMode } = useKeyboard
   return (
     <Box flexDirection={"column"}>
       <Text>
-        Hello <Text color="yellow">{name}</Text>
+        Hello <Text color="yellow">{greeting}</Text>
       </Text>
       <Text>
         {inRawMode ?

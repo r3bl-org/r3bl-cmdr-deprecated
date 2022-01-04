@@ -22,9 +22,11 @@ dependency (via [npm](https://www.npmjs.com/package/r3bl-ts-utils)) for this pro
 ## Examples
 
 To run examples (which are single source file sample code), open a terminal in the project folder
-and then run `node -r tsm src/examples/...` as shown below for some examples.
+and then run `node -r tsm src/experimental/...` as shown below for some examples.
 
 ```shell
-node -r tsm src/examples/focus/example.tsx
-node -r tsm src/examples/dynamic-import/using-require.ts
+node -r tsm src/experimental/use-focus/example.tsx
+node -r tsm src/experimental/dynamic-import/using-require.ts
 ```
+
+Also npm run scripts are provided w/ a prefix of `exp-` which you can use to run them as well.

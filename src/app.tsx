@@ -18,12 +18,12 @@
 import { Box, Text } from "ink"
 import {
   _also, createNewShortcutToActionMap, LifecycleHelper, ShortcutToActionMap, TTYSize,
-  useClockWithLocalTimeFormat, UseKeyboardReturnValue, useKeyboardWithMapCached,
+  useClockWithLocalTimeFormat, UseKeyboardReturnValue, useKeyboardWithMapCached, UseKeyboardWrapper,
   usePreventProcessExitDuringTesting, useTTYSize
 } from "r3bl-ts-utils"
 import React, { FC } from "react"
 
-//#region Hooks.
+// Types.
 
 interface HooksOutput {
   ttySize: TTYSize
@@ -36,12 +36,18 @@ interface HooksInput {
   name: string
 }
 
+interface InternalProps {
+  ctx: HooksOutput
+}
+
+// Hooks.
+
 const runHooks = (inputs: HooksInput): HooksOutput => {
   const { name } = inputs
   
   usePreventProcessExitDuringTesting() // For testing using `npm run start-dev-watch`.
   const ttySize: TTYSize = useTTYSize()
-  const { localeTimeString: formattedTime } = useClockWithLocalTimeFormat(3_000)
+  const { localeTimeString: formattedTime } = useClockWithLocalTimeFormat(1_500)
   
   return {
     greeting: `Hello ${name}`,
@@ -51,27 +57,31 @@ const runHooks = (inputs: HooksInput): HooksOutput => {
   }
 }
 
-//#endregion
-
-//#region handleKeyboard.
-
 const createShortcutsMap = (): ShortcutToActionMap => _also(
   createNewShortcutToActionMap(),
   map => map
     .set("q", LifecycleHelper.fireExit)
     .set("ctrl+q", LifecycleHelper.fireExit)
     .set("escape", LifecycleHelper.fireExit)
+    .set("meta+escape", LifecycleHelper.fireExit)
 )
 
-//#endregion
-
-//#region render().
-
+// Function components.
 export const App: FC<{ name: string }> = ({ name }) => {
-  const { greeting, useKeyboard, ttySize, formattedTime } = runHooks({ name })
+  const ctx = runHooks({ name })
+  return (
+    <UseKeyboardWrapper>
+      <MainComponent ctx={ctx}/>
+    </UseKeyboardWrapper>
+  )
+}
+
+const MainComponent: FC<InternalProps> = ({ ctx }) => {
+  const { greeting, useKeyboard, ttySize, formattedTime } = ctx
   const { keyPress, inRawMode } = useKeyboard
   return (
     <Box flexDirection={"column"}>
+      <Text color="gray">Press q, ctrl+q, escape to exit</Text>
       <Text>
         Hello <Text color="yellow">{greeting}</Text>
       </Text>
@@ -93,8 +103,6 @@ export const App: FC<{ name: string }> = ({ name }) => {
           <Text color="red">!keyPress</Text>
         }
       </Text>
-    </Box>
-  )
+    </Box>)
 }
 
-//#endregion

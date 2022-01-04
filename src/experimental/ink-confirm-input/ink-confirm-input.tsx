@@ -35,7 +35,7 @@ export const ConfirmInput: FC<Props> =
     const [ value, setValue ]: StateHook<string> = useStateSafely("").asArray()
     const [ showCursor, setShowCursor ]: StateHook<boolean> = useStateSafely(true).asArray()
     
-    let createShortcutsFn = (): ShortcutToActionMap => _also(
+    const createShortcutsFn = (): ShortcutToActionMap => _also(
       createNewShortcutToActionMap(),
       map => map
         .set("backspace", () => setValue(""))

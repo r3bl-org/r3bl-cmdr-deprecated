@@ -18,15 +18,16 @@
     "start-watch-js": "nodemon --exitcrash -e ts,tsx,js,jsx --exec 'echo -e '\\033[0m' && clear && node dist/cli.js || exit 1'",
     "build-watch-js": "tsc --watch",
     "dev-js": "npm run build && npm-run-all -p -r build-watch-js start-watch-js",
+    "flush-npm-cache": "rm -rf node_modules/ && npm cache clean --force && npm i",
     "/*format-with-tsfmt*/": "https://github.com/vvakame/typescript-formatter",
     "format-with-tsfmt": "tsfmt -r",
     "/*experimental*/": "These scripts allow you to run experimental projects",
     "exp-template": "node -r tsm src/experimental/experiment-template.tsx",
     "exp-use-focus": "node -r tsm src/experimental/use-focus/example.tsx",
-    "exp-ink-text-input": "node -r tsm src/experimental/ink-text-input/example.tsx",
-    "exp-ink-confirm-input": "node -r tsm src/experimental/ink-confirm-input/example.tsx",
     "exp-dyn-require": "node -r tsm src/experimental/dynamic-import/using-require.ts",
-    "exp-dyn-import": "node -r tsm src/experimental/dynamic-import/using-import.ts"
+    "exp-dyn-import": "node -r tsm src/experimental/dynamic-import/using-import.ts",
+    "exp-ink-confirm-input": "node -r tsm src/experimental/ink-confirm-input/example.tsx",
+    "exp-ink-text-input-with-provider": "node -r tsm src/experimental/ink-text-input/example-with-provider.tsx"
   },
   "files": [
     "dist/cli.js"
@@ -35,7 +36,7 @@
     "commander": "^8.3.0",
     "ink": "^3.2.0",
     "ink-text-input": "^4.0.2",
-    "r3bl-ts-utils": "^1.0.68",
+    "r3bl-ts-utils": "^1.0.73",
     "react": "^17.0.2",
     "tslib": "^2.3.1"
   },

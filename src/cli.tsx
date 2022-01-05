@@ -23,7 +23,7 @@ import { _let, LifecycleHelper, TextColor, TimerRegistry } from "r3bl-ts-utils"
 import { createElement } from "react"
 import { App } from "./app"
 
-//#region Parse command line args.
+// Parse command line args.
 
 const processCommandLineArgs = (): CommandLineArgs => _let(
   new Command(),
@@ -38,9 +38,7 @@ interface CommandLineArgs {
   name: string | undefined
 }
 
-//#endregion
-
-//#region render ink app.
+// Create main App function component.
 
 /**
  * render() returns an instance of Ink that can be used to unmount(), waitUntilExit(), etc.
@@ -53,26 +51,23 @@ const createInkApp = (args: CommandLineArgs): ReturnType<typeof render> => {
   )
 }
 
-//#endregion
+// main().
 
-//#region main().
-
-const main = () => {
+const main = async (): Promise<void> => {
   const args = processCommandLineArgs()
   const instance = createInkApp(args)
+  
   LifecycleHelper.addExitListener(() => {
     TimerRegistry.killAll()
     instance.unmount()
-    instance.waitUntilExit()
-      .then(() => {
-        console.log(TextColor.builder.bgYellow.black.build()("Exiting ink"))
-      })
-      .catch(() => {
-        console.error(TextColor.builder.bgYellow.black.build()("Problem with exiting ink"))
-      })
   })
+  
+  try {
+    await instance.waitUntilExit()
+    console.log(TextColor.builder.bgYellow.black.build()("Exiting ink"))
+  } catch (err) {
+    console.error(TextColor.builder.bgYellow.black.build()("Problem with exiting ink"))
+  }
 }
 
-main()
-
-//#endregion
+main().catch(console.log)

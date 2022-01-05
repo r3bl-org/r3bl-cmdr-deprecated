@@ -26,8 +26,8 @@
     "exp-use-focus": "node -r tsm src/experimental/use-focus/example.tsx",
     "exp-dyn-require": "node -r tsm src/experimental/dynamic-import/using-require.ts",
     "exp-dyn-import": "node -r tsm src/experimental/dynamic-import/using-import.ts",
-    "exp-ink-confirm-input": "node -r tsm src/experimental/ink-confirm-input/example.tsx",
-    "exp-ink-text-input-with-provider": "node -r tsm src/experimental/ink-text-input/example-with-provider.tsx"
+    "exp-ink-text-input-with-provider": "node -r tsm src/experimental/ink-text-input/example-with-provider.tsx",
+    "exp-ink-confirm-input": "node -r tsm src/experimental/ink-confirm-input/example.tsx"
   },
   "files": [
     "dist/cli.js"
@@ -36,7 +36,7 @@
     "commander": "^8.3.0",
     "ink": "^3.2.0",
     "ink-text-input": "^4.0.2",
-    "r3bl-ts-utils": "^1.0.73",
+    "r3bl-ts-utils": "^1.0.75",
     "react": "^17.0.2",
     "tslib": "^2.3.1"
   },

@@ -18,7 +18,7 @@
     "start-watch-js": "nodemon --exitcrash -e ts,tsx,js,jsx --exec 'echo -e '\\033[0m' && clear && node dist/cli.js || exit 1'",
     "build-watch-js": "tsc --watch",
     "dev-js": "npm run build && npm-run-all -p -r build-watch-js start-watch-js",
-    "flush-npm-cache": "rm -rf node_modules/ && npm cache clean --force && npm i",
+    "flush-npm-cache": "rm package-lock.json && rm -rf node_modules/ && npm cache clean --force && npm i",
     "/*format-with-tsfmt*/": "https://github.com/vvakame/typescript-formatter",
     "format-with-tsfmt": "tsfmt -r",
     "/*experimental*/": "These scripts allow you to run experimental projects",
@@ -36,7 +36,7 @@
     "commander": "^8.3.0",
     "ink": "^3.2.0",
     "ink-text-input": "^4.0.2",
-    "r3bl-ts-utils": "^1.0.75",
+    "r3bl-ts-utils": "^1.0.76",
     "react": "^17.0.2",
     "tslib": "^2.3.1"
   },

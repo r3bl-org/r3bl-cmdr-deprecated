@@ -17,11 +17,10 @@
 
 import { Box, render, Text, useApp } from "ink"
 import {
-  _also, createNewShortcutToActionMap, ShortcutToActionMap, StateHolder, UseKeyboardReturnValue,
-  useKeyboardWithMapCached, useStateSafely,
+  _also, ConfirmInput, createNewShortcutToActionMap, ShortcutToActionMap, StateHolder,
+  UseKeyboardReturnValue, useKeyboardWithMapCached, useStateSafely,
 } from "r3bl-ts-utils"
 import React, { FC } from "react"
-import { ConfirmInput } from "./ink-confirm-input"
 
 // Types & data classes.
 export type HookOutput = {
@@ -75,21 +74,24 @@ const Row_Debug: FC<InternalProps> =
 
 const UnicornQuestion: FC<InternalProps> =
   ({ ctx }) => {
-    const handleAnswer = (value: boolean) => ctx.answer.setValue(
-      value ? "You love unicorns :)" : "You don't like unicorns :(")
+    const [ text, setText ] = ctx.answer.asArray()
+    
+    const onSubmit = (answer: boolean) => {
+      setText(answer ? "You love unicorns :)" : "You don't like unicorns :(")
+    }
     
     return (
       <Box flexDirection="column">
         <Text>Do you like unicorns? (Y/n)</Text>
         
         <ConfirmInput
-          placeholder="Type y/n, then press enter to submit"
+          placeholderBeforeSubmit="Type y/n, then press enter to submit"
           placeholderAfterSubmit="Thank you"
           defaultValue={false}
-          onAnswer={handleAnswer}
+          onSubmit={onSubmit}
         />
         
-        <Text>Your answer: {ctx.answer.toString()}</Text>
+        <Text>Your answer: {text}</Text>
       </Box>
     )
   }

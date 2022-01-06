@@ -22,12 +22,10 @@
     "/*format-with-tsfmt*/": "https://github.com/vvakame/typescript-formatter",
     "format-with-tsfmt": "tsfmt -r",
     "/*experimental*/": "These scripts allow you to run experimental projects",
-    "exp-template": "node -r tsm src/experimental/experiment-template.tsx",
+    "exp-template": "node -r tsm src/experimental/template.tsx",
     "exp-use-focus": "node -r tsm src/experimental/use-focus/example.tsx",
     "exp-dyn-require": "node -r tsm src/experimental/dynamic-import/using-require.ts",
-    "exp-dyn-import": "node -r tsm src/experimental/dynamic-import/using-import.ts",
-    "exp-ink-text-input-with-provider": "node -r tsm src/experimental/ink-text-input/example-with-provider.tsx",
-    "exp-ink-confirm-input": "node -r tsm src/experimental/ink-confirm-input/example.tsx"
+    "exp-dyn-import": "node -r tsm src/experimental/dynamic-import/using-import.ts"
   },
   "files": [
     "dist/cli.js"
@@ -36,7 +34,7 @@
     "commander": "^8.3.0",
     "ink": "^3.2.0",
     "ink-text-input": "^4.0.2",
-    "r3bl-ts-utils": "^1.0.76",
+    "r3bl-ts-utils": "^1.0.77",
     "react": "^17.0.2",
     "tslib": "^2.3.1"
   },

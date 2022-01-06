@@ -17,10 +17,10 @@
 
 import { Box, render, Text, useApp } from "ink"
 import {
-  _also, createNewShortcutToActionMap, ShortcutToActionMap, TextColor, UseKeyboardReturnValue,
-  useKeyboardWithMapCached,
+  _also, createNewShortcutToActionMap, LifecycleHelper, ShortcutToActionMap, TextColor,
+  TimerRegistry, UseKeyboardReturnValue, useKeyboardWithMapCached,
 } from "r3bl-ts-utils"
-import React, { createElement, FC } from "react"
+import React, { FC } from "react"
 
 // Types & data classes.
 
@@ -72,5 +72,20 @@ const Row_Debug: FC<InternalProps> = ({ ctx }) => {
 }
 
 // Main.
+const main = async (): Promise<void> => {
+  const instance = render(<App/>)
+  
+  LifecycleHelper.addExitListener(() => {
+    TimerRegistry.killAll()
+    instance.unmount()
+  })
+  
+  try {
+    await instance.waitUntilExit()
+    console.log(TextColor.builder.bgYellow.black.build()("Exiting ink"))
+  } catch (err) {
+    console.error(TextColor.builder.bgYellow.black.build()("Problem with exiting ink"))
+  }
+}
 
-render(createElement(App))
+main().catch(console.log)

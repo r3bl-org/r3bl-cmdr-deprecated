@@ -183,67 +183,7 @@
             </PaintGroupHighlightMap>
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/package.json">
-          <value>
-            <PaintGroupHighlightMap>
-              <option name="paintGroups">
-                <map>
-                  <entry key="0">
-                    <value>
-                      <EditorHighlightsForPaintGroup />
-                    </value>
-                  </entry>
-                  <entry key="1">
-                    <value>
-                      <EditorHighlightsForPaintGroup />
-                    </value>
-                  </entry>
-                  <entry key="2">
-                    <value>
-                      <EditorHighlightsForPaintGroup />
-                    </value>
-                  </entry>
-                  <entry key="3">
-                    <value>
-                      <EditorHighlightsForPaintGroup />
-                    </value>
-                  </entry>
-                </map>
-              </option>
-            </PaintGroupHighlightMap>
-          </value>
-        </entry>
         <entry key="$PROJECT_DIR$/src/__tests__/ui.test.ts">
-          <value>
-            <PaintGroupHighlightMap>
-              <option name="paintGroups">
-                <map>
-                  <entry key="0">
-                    <value>
-                      <EditorHighlightsForPaintGroup />
-                    </value>
-                  </entry>
-                  <entry key="1">
-                    <value>
-                      <EditorHighlightsForPaintGroup />
-                    </value>
-                  </entry>
-                  <entry key="2">
-                    <value>
-                      <EditorHighlightsForPaintGroup />
-                    </value>
-                  </entry>
-                  <entry key="3">
-                    <value>
-                      <EditorHighlightsForPaintGroup />
-                    </value>
-                  </entry>
-                </map>
-              </option>
-            </PaintGroupHighlightMap>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/cli.tsx">
           <value>
             <PaintGroupHighlightMap>
               <option name="paintGroups">

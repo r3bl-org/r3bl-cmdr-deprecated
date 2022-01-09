@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 R3BL LLC. All rights reserved.
+ * Copyright (c) 2021-2022 R3BL LLC. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ module.exports = {
         "^.+\\.(t|j)sx?$": "ts-jest",
       },
       testEnvironment: "node",
-      testMatch: ["**/__tests__/**/*.test.ts?(x)"],
+      testMatch: [ "**/__tests__/**/*.test.ts?(x)" ],
     },
     {
       displayName: "jsdom:🟢 browser env project",
@@ -33,7 +33,7 @@ module.exports = {
         "^.+\\.(t|j)sx?$": "ts-jest",
       },
       testEnvironment: "jsdom",
-      testMatch: ["**/__tests__/**/*.test.jsdom.ts?(x)"],
+      testMatch: [ "**/__tests__/**/*.test.jsdom.ts?(x)" ],
     },
   ],
 }

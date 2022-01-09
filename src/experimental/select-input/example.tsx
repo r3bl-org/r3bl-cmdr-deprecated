@@ -1,8 +1,25 @@
+/*
+ * Copyright (c) 2022 R3BL LLC. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 import { Box, render, Text } from "ink"
 import SelectInput from "ink-select-input"
 import {
-  _also, createNewShortcutToActionMap, Data, LifecycleHelper, ShortcutToActionMap, TextColor,
-  TimerRegistry, useKeyboardWithMapCached, UseKeyboardWrapper, useStateSafely
+  _also, createNewShortcutToActionMap, Data, inkCLIAppMainFn, LifecycleHelper, ShortcutToActionMap,
+  TextColor, useKeyboardWithMapCached, UseKeyboardWrapper, useStateSafely
 } from "r3bl-ts-utils"
 import React, { FC } from "react"
 
@@ -60,20 +77,9 @@ const Wrapper: FC = () => {
   return (<UseKeyboardWrapper><App/></UseKeyboardWrapper>)
 }
 
-const main = async (): Promise<void> => {
-  const instance = render(<Wrapper/>)
-  
-  LifecycleHelper.addExitListener(() => {
-    TimerRegistry.killAll()
-    instance.unmount()
-  })
-  
-  try {
-    await instance.waitUntilExit()
-    console.log(TextColor.builder.bgYellow.black.build()("Exiting ink"))
-  } catch (err) {
-    console.error(TextColor.builder.bgYellow.black.build()("Problem with exiting ink"))
-  }
-}
-
-main().catch(console.log)
+// Main.
+inkCLIAppMainFn(
+  () => render(<Wrapper/>),
+  "Exiting ink",
+  "Problem w/ exiting ink"
+).catch(console.error)

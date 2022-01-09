@@ -19,20 +19,17 @@
 
 import { Command } from "commander"
 import { render } from "ink"
-import { _let, LifecycleHelper, TextColor, TimerRegistry } from "r3bl-ts-utils"
+import { _let, inkCLIAppMainFn } from "r3bl-ts-utils"
 import { createElement } from "react"
 import { App } from "./app"
 
 // Parse command line args.
 
-const processCommandLineArgs = (): CommandLineArgs => _let(
-  new Command(),
-  (it) => {
-    it.option("-n, --name <name>", "name to display")
-    it.parse(process.argv)
-    return it.opts()
-  }
-)
+const processCommandLineArgs = (): CommandLineArgs => _let(new Command(), (it) => {
+  it.option("-n, --name <name>", "name to display")
+  it.parse(process.argv)
+  return it.opts()
+})
 
 interface CommandLineArgs {
   name: string | undefined
@@ -46,28 +43,13 @@ interface CommandLineArgs {
  * the JSX *requires* the functional or class component to start w/ an uppercase character.*/
 const createInkApp = (args: CommandLineArgs): ReturnType<typeof render> => {
   const { name } = args
-  return render(
-    createElement(App, { name: !name ? "Stranger" : name })
-  )
+  return render(createElement(App, { name: !name ? "Stranger" : name }))
 }
 
-// main().
-
-const main = async (): Promise<void> => {
-  const args = processCommandLineArgs()
-  const instance = createInkApp(args)
-  
-  LifecycleHelper.addExitListener(() => {
-    TimerRegistry.killAll()
-    instance.unmount()
-  })
-  
-  try {
-    await instance.waitUntilExit()
-    console.log(TextColor.builder.bgYellow.black.build()("Exiting ink"))
-  } catch (err) {
-    console.error(TextColor.builder.bgYellow.black.build()("Problem with exiting ink"))
-  }
-}
-
-main().catch(console.log)
+// Main.
+inkCLIAppMainFn(
+  () => _let(processCommandLineArgs(), args => createInkApp(args)),
+  "Exiting ink",
+  "Problem w/ exiting ink"
+)
+  .catch(console.error)

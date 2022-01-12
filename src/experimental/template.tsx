@@ -18,7 +18,7 @@
 import { Box, render, Text } from "ink"
 import {
   _also, createNewShortcutToActionMap, inkCLIAppMainFn, LifecycleHelper, ShortcutToActionMap,
-  TextColor, UseKeyboardReturnValue, useKeyboardWithMapCached,
+  TextColor, UseKeyboardReturnValue, useKeyboardWithMapCached, UseKeyboardWrapper,
 } from "r3bl-ts-utils"
 import React, { FC } from "react"
 
@@ -49,15 +49,20 @@ const runHooks = (input: HookInput): HookOutput => {
 const App: FC = () => {
   const output = runHooks({ name: "Your example goes here!" })
   const { greeting } = output
-  return (<Box flexDirection="column">
-    <Row_Debug ctx={output}/>
-    <Text>{greeting}</Text>
-  </Box>)
+  return (
+    <UseKeyboardWrapper>
+      <Box flexDirection="column">
+        <Row_Debug ctx={output}/>
+        <Text>{greeting}</Text>
+      </Box>
+    </UseKeyboardWrapper>
+  )
 }
 
 const Row_Debug: FC<InternalProps> = ({ ctx }) => {
   const { keyPress: kp, inRawMode: mode } = ctx.useKeyboard
-  return mode ? <Text color="magenta">keyPress: {kp ? `${kp.toString()}` : "n/a"}</Text> :
+  return mode ?
+    <Text color="magenta">keyPress: {kp ? `${kp.toString()}` : "n/a"}</Text> :
     <Text color="gray">keyb disabled</Text>
 }
 

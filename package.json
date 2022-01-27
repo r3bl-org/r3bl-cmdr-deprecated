@@ -2,20 +2,20 @@
   "name": "rc",
   "version": "0.0.1",
   "license": "Apache 2.0",
-  "bin": "dist/cli.js",
+  "bin": "dist/main.js",
   "engines": {
     "node": ">=10"
   },
   "scripts": {
-    "start-dev": "node -r tsm src/cli.tsx",
+    "start-dev": "node -r tsm src/main.tsx",
     "/*start-dev-watch*/": "https://stackoverflow.com/a/28938235/2085356",
-    "start-dev-watch": "nodemon --exitcrash -e ts,tsx --exec 'echo -e '\\033[0m' && clear && node -r tsm src/cli.tsx || exit 1'",
+    "start-dev-watch": "nodemon --exitcrash -e ts,tsx --exec 'echo -e '\\\\033[0m' && clear && node -r tsm src/main.tsx || exit 1'",
     "test": "jest",
     "test-watch": "jest --watch",
     "lint": "eslint 'src/**/*.{ts,tsx}' --quiet --fix",
-    "build": "rm -rf dist/ && tsc && chmod +x dist/cli.js",
-    "start": "node dist/cli.js",
-    "start-watch-js": "nodemon --exitcrash -e ts,tsx,js,jsx --exec 'echo -e '\\033[0m' && clear && node dist/cli.js || exit 1'",
+    "build": "rm -rf dist/ && tsc && chmod +x dist/main.js",
+    "start": "node dist/main.js",
+    "start-watch-js": "nodemon --exitcrash -e ts,tsx,js,jsx --exec 'echo -e '\\033[0m' && clear && node dist/main.js || exit 1'",
     "build-watch-js": "tsc --watch",
     "dev-js": "npm run build && npm-run-all -p -r build-watch-js start-watch-js",
     "flush-npm-cache": "rm package-lock.json && rm -rf node_modules/ && npm cache clean --force && npm i",
@@ -28,7 +28,7 @@
     "exp-dyn-import": "node -r tsm src/experimental/dynamic-import/using-import.ts"
   },
   "files": [
-    "dist/cli.js"
+    "dist/main.js"
   ],
   "dependencies": {
     "commander": "^8.3.0",

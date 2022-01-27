@@ -42,8 +42,8 @@ To run any of the following scripts you can execute `npm run <SCRIPT_NAME>`.
 <!-- prettier-ignore-start -->
 | Task              | Script            | Notes                                                        |
 |-------------------|-------------------|--------------------------------------------------------------|
-| Run               | `start-dev`       | Run the `dist/cli.tsx` file                                  |
-| Run & watch       | `start-dev-watch` | Watch for changes and re-run the `dist/cli.tsx` file         |
+| Run               | `start-dev`       | Run the `dist/main.tsx` file                                  |
+| Run & watch       | `start-dev-watch` | Watch for changes and re-run the `dist/main.tsx` file         |
 | Run tests         | `test`            | Run all the Jest tests (no need for compiling)               |
 | Run tests & watch | `test-watch`      | Run all the Jest tests in watch mode (no need for compiling) |
 | Run linter        | `lint`            | Run ESLint.                                                  |
@@ -54,7 +54,7 @@ To run any of the following scripts you can execute `npm run <SCRIPT_NAME>`.
 <!-- prettier-ignore-start -->
 | Task                | Script           | Notes                                                  |
 |---------------------|------------------|--------------------------------------------------------|
-| Run (w/out compile) | `start`          | Run the `dist/cli.js` file (make sure its executable)  |
+| Run (w/out compile) | `start`          | Run the `dist/main.js` file (make sure its executable)  |
 | Compile             | `build`          | Run`tsc` to generate JS files in the `dist` folder     |
 | Compile & watch     | `build-watch-js` | run `tsc` and watch for changes in TS files            |
 | Run & watch         | `start-watch-js` | Watch for changes in JS files, and re-run              |
@@ -78,7 +78,7 @@ Here are some notes on how all the watching tasks work.
 
 #### start script
 
-1. Make sure to mark `dist/cli.js` file as executable so that this self executing module can run.
+1. Make sure to mark `dist/main.js` file as executable so that this self executing module can run.
 2. To pass command line arguments you can use `npm run start -- <STUFF>`
 3. You can also run `npm exec -c 'ink-cli-app <STUFF>'`.
 4. Where `<STUFF>` can be:
@@ -114,7 +114,7 @@ You can also use IDEA Run Configurations that are included.
 
 1. `Run all tests` - This runs all the tests in the `src` folder using the the `jest.config.cjs`
    file.
-2. `cli.js` - This uses Node.js to run run the `dist/cli.js` file after building it.
+2. `main.js` - This uses Node.js to run run the `dist/main.js` file after building it.
 
 ### How to update the template
 

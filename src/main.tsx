@@ -19,7 +19,7 @@
 
 import { Command } from "commander"
 import { render } from "ink"
-import { _let, inkCLIAppMainFn } from "r3bl-ts-utils"
+import { inkCLIAppMainFn, _let } from "r3bl-ts-utils"
 import { createElement } from "react"
 import { App } from "./app"
 
@@ -48,8 +48,7 @@ const createInkApp = (args: CommandLineArgs): ReturnType<typeof render> => {
 
 // Main.
 inkCLIAppMainFn(
-  () => _let(processCommandLineArgs(), args => createInkApp(args)),
+  () => _let(processCommandLineArgs(), createInkApp),
   "Exiting ink",
   "Problem w/ exiting ink"
-)
-  .catch(console.error)
+).catch(console.error)

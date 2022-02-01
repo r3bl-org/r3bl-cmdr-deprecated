@@ -25,6 +25,8 @@ import { App } from "../app"
 afterEach(TimerRegistry.killAll)
 
 test("renders w/ name props", () => {
-  const { lastFrame } = render(React.createElement(App, { name: "Grogu" }))
+  const ink = render(<App name="Grogu" />)
+  const { lastFrame } = ink
   expect(lastFrame()).toContain("Grogu")
+  ink.unmount()
 })

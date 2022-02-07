@@ -18,8 +18,8 @@
 import * as ink from "ink"
 import { Box, Newline, Text, useApp, useFocus, useFocusManager } from "ink"
 import {
-  _also, createNewShortcutToActionMap, Keypress, makeReactElementFromArray, ShortcutToActionMap,
-  useKeyboardWithMap,
+  createNewShortcutToActionMap, KeypressOption, makeReactElementFromArray, ShortcutToActionMap,
+  useKeyboardWithMap, _also
 } from "r3bl-ts-utils"
 import React, { createElement, FC, ReactElement, useMemo } from "react"
 
@@ -67,7 +67,7 @@ const createShortcutsMap = (ctx: CreateActionMapContext): ShortcutToActionMap =>
 //#region render().
 
 interface Context {
-  keyPress: Readonly<Keypress> | undefined
+  keyPress: KeypressOption
   inRawMode: boolean
 }
 
@@ -75,9 +75,9 @@ const render = (ctx: Context): ReactElement => {
   const { keyPress, inRawMode } = ctx
   return (
     <Box flexDirection="column">
-      {keyPress && <Row_Debug inRawMode={inRawMode} keyPress={keyPress.toString()}/>}
-      <Row_Instructions/>
-      <Row_FocusableItems/>
+      {keyPress && <Row_Debug inRawMode={inRawMode} keyPress={keyPress.toString()} />}
+      <Row_Instructions />
+      <Row_FocusableItems />
     </Box>
   )
 }
@@ -92,8 +92,8 @@ const Row_Debug: FC<{ inRawMode: boolean; keyPress: string | undefined }> = ({
 }): JSX.Element => inRawMode ? (
   <Text color="magenta">keyPress: {keyPress}</Text>
 ) : (
-  <Text color="gray">keyb disabled</Text>
-)
+    <Text color="gray">keyb disabled</Text>
+  )
 
 const Row_Instructions: FC = (): JSX.Element => makeReactElementFromArray(
   [
@@ -104,17 +104,17 @@ const Row_Instructions: FC = (): JSX.Element => makeReactElementFromArray(
     [ "red", "To exit, press Ctrl+q, or q" ],
   ],
   (item: string[], id: number): JSX.Element => (
-    <Text color={item[0]} key={id}>
-      {item[1]}
+    <Text color={item[ 0 ]} key={id}>
+      {item[ 1 ]}
     </Text>
   )
 )
 
 const Row_FocusableItems: FC = (): JSX.Element => (
   <Box padding={1} flexDirection="row" justifyContent={"space-between"}>
-    <FocusableItem id="1" label="First"/>
-    <FocusableItem id="2" label="Second"/>
-    <FocusableItem id="3" label="Third"/>
+    <FocusableItem id="1" label="First" />
+    <FocusableItem id="2" label="Second" />
+    <FocusableItem id="3" label="Third" />
   </Box>
 )
 
@@ -125,12 +125,12 @@ const FocusableItem: FC<{ label: string; id: string }> = ({ label, id }): JSX.El
       {label}
       {isFocused ? (
         <>
-          <Newline/>
+          <Newline />
           <Text color="green">(*)</Text>
         </>
       ) : (
         <>
-          <Newline/>
+          <Newline />
           <Text color="gray">n/a</Text>
         </>
       )}

@@ -17,9 +17,9 @@
 
 import { Box, Text } from "ink"
 import {
-  _also, createNewShortcutToActionMap, LifecycleHelper, ShortcutToActionMap, TTYSize,
+  createNewShortcutToActionMap, LifecycleHelper, ShortcutToActionMap, TTYSize,
   useClockWithLocalTimeFormat, UseKeyboardReturnValue, useKeyboardWithMapCached, UseKeyboardWrapper,
-  usePreventProcessExitDuringTesting, useTTYSize
+  usePreventProcessExitDuringTesting, useTTYSize, _also
 } from "r3bl-ts-utils"
 import React, { FC } from "react"
 
@@ -44,11 +44,11 @@ interface InternalProps {
 
 const runHooks = (inputs: HooksInput): HooksOutput => {
   const { name } = inputs
-  
+
   usePreventProcessExitDuringTesting() // For testing using `npm run start-dev-watch`.
   const ttySize: TTYSize = useTTYSize()
   const { localeTimeString: formattedTime } = useClockWithLocalTimeFormat(1_500)
-  
+
   return {
     greeting: `Hello ${name}`,
     ttySize,
@@ -71,7 +71,7 @@ export const App: FC<{ name: string }> = ({ name }) => {
   const ctx = runHooks({ name })
   return (
     <UseKeyboardWrapper>
-      <MainComponent ctx={ctx}/>
+      <MainComponent ctx={ctx} />
     </UseKeyboardWrapper>
   )
 }
@@ -98,11 +98,10 @@ const MainComponent: FC<InternalProps> = ({ ctx }) => {
         time <Text color="magenta">{formattedTime}</Text>
       </Text>
       <Text>
-        {keyPress ?
-          <Text color="cyan">{keyPress.toString()}</Text> :
+        {keyPress.isSome() ?
+          <Text color="cyan">{keyPress.value.toString()}</Text> :
           <Text color="red">!keyPress</Text>
         }
       </Text>
     </Box>)
 }
-

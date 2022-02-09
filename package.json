@@ -34,7 +34,7 @@
     "commander": "^8.3.0",
     "ink": "^3.2.0",
     "ink-text-input": "^4.0.2",
-    "r3bl-ts-utils": "^2.0.6",
+    "r3bl-ts-utils": "^2.0.9",
     "react": "^17.0.2",
     "tslib": "^2.3.1"
   },
